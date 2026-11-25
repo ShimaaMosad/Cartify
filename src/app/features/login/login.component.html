@@ -1,0 +1,131 @@
+<section class="mx-auto flex min-h-[calc(100vh-5rem)] max-w-7xl items-center px-5 py-10 md:px-6">
+    <div
+        class="animate-cartify-in mx-auto grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-4xl border border-line-subtle bg-surface-card shadow-md lg:grid-cols-12">
+        <!-- Left Soft Editorial Part -->
+        <div
+            class="relative flex flex-col justify-between overflow-hidden border-b border-line-subtle bg-linear-to-br from-brand-primary-soft/65 via-surface-muted/80 to-brand-secondary-soft/45 p-7 lg:col-span-5 lg:border-r lg:border-b-0 lg:p-9">
+            <div>
+                <span
+                    class="inline-flex items-center gap-1.5 rounded-full border border-brand-primary/20 bg-surface-card/90 px-3.5 py-1 text-[11px] font-extrabold text-brand-primary shadow-2xs">
+                    <i class="far fa-smile text-[10px]"></i>
+                    Welcome Back
+                </span>
+
+                <h1 class="mt-4 text-2xl font-extrabold leading-snug tracking-tight text-content-main md:text-3xl">
+                    Pick up right where you left off.
+                </h1>
+
+                <p class="mt-3 text-sm leading-relaxed text-content-muted">
+                    Sign in to your Cartify account to check your saved picks, revisit your bag, and explore
+                    what’s waiting for you.
+                </p>
+            </div>
+
+            <div class="mt-8 space-y-3 pt-4 text-xs">
+                <div
+                    class="flex items-center gap-3 rounded-2xl border border-line-subtle/80 bg-surface-card/85 px-3.5 py-2.5 backdrop-blur-2xs">
+                    <span
+                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-brand-primary-soft text-brand-primary">
+                        <i class="far fa-heart text-xs"></i>
+                    </span>
+                    <span class="font-bold text-content-main">Your wishlist is waiting safely</span>
+                </div>
+
+                <div
+                    class="flex items-center gap-3 rounded-2xl border border-line-subtle/80 bg-surface-card/85 px-3.5 py-2.5 backdrop-blur-2xs">
+                    <span
+                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-brand-secondary-soft text-brand-secondary">
+                        <i class="fas fa-star text-xs"></i>
+                    </span>
+                    <span class="font-bold text-content-main">Fresh arrivals across brands &amp; categories</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Form -->
+        <div class="flex flex-col justify-center p-6 sm:p-8 lg:col-span-7 lg:p-10">
+            <div class="mb-6">
+                <span
+                    class="inline-block rounded-full bg-brand-secondary-soft px-3 py-1 text-[11px] font-bold text-brand-secondary">
+                    Sign In
+                </span>
+                <h2 class="mt-2 text-2xl font-extrabold tracking-tight text-content-main">
+                    Welcome back to Cartify
+                </h2>
+                <p class="mt-1 text-xs text-content-muted">
+                    New here?
+                    <a routerLink="/register"
+                        class="font-extrabold text-brand-primary underline-offset-2 hover:underline">
+                        Create an account
+                    </a>
+                </p>
+            </div>
+
+
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+                <div>
+                    <label for="login-email" class="mb-1.5 block text-xs font-bold text-content-main">
+                        Email Address
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-xs text-content-soft">
+                            <i class="far fa-envelope"></i>
+                        </span>
+                        <input id="login-email" type="email" formControlName="email"
+                            placeholder="ahmedmuttii4012@gmail.com"
+                            class="w-full rounded-2xl border border-line-subtle bg-surface-muted py-2.5 pr-4 pl-9 text-sm text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-4 focus:ring-brand-primary/10 focus:outline-none" />
+                    </div>
+                    @if (isFieldInvalid('email')) {
+                    <p class="mt-1 text-[11px] font-bold text-brand-danger">
+                        Please enter a valid email address.
+                    </p>
+                    }
+                </div>
+
+                <div>
+                    <div class="mb-1.5 flex items-center justify-between gap-2">
+                        <label for="login-password" class="block text-xs font-bold text-content-main">
+                            Password
+                        </label>
+                        <a routerLink="/forget-password"
+                            class="text-xs font-bold text-brand-secondary transition-colors hover:text-brand-primary">
+                            Forgot password?
+                        </a>
+                    </div>
+                    <div class="relative">
+                        <span
+                            class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-xs text-content-soft">
+                            <i class="fas fa-lock text-[11px]"></i>
+                        </span>
+                        <input id="login-password" [type]="showPassword() ? 'text' : 'password'"
+                            formControlName="password" placeholder="••••••••"
+                            class="w-full rounded-2xl border border-line-subtle bg-surface-muted py-2.5 pr-9 pl-9 text-sm text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-4 focus:ring-brand-primary/10 focus:outline-none" />
+                        <button type="button" (click)="togglePasswordVisibility()"
+                            aria-label="Toggle password visibility"
+                            class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-xs text-content-muted transition-colors hover:text-brand-primary">
+                            <i class="fas" [class]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+                        </button>
+                    </div>
+                    @if (isFieldInvalid('password')) {
+                    <p class="mt-1 text-[11px] font-bold text-brand-danger">
+                        Please enter your password.
+                    </p>
+                    }
+                </div>
+
+                <button type="submit" [disabled]="isSubmitting()"
+                    class="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-brand-primary px-5 py-3 text-sm font-extrabold text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60">
+                    @if (isSubmitting()) {
+                    <i class="fas fa-spinner fa-spin text-xs"></i>
+                    <span>Signing In...</span>
+                    } @else {
+                    <span>Sign In</span>
+                    <i class="fas fa-arrow-right text-xs"></i>
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

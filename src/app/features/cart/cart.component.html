@@ -1,0 +1,193 @@
+<section class="mx-auto min-h-[calc(100vh-5rem)] max-w-7xl overflow-x-clip px-5 py-10 md:px-6">
+    <!-- Header -->
+    <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="min-w-0">
+            <span
+                class="inline-flex items-center gap-1.5 rounded-full border border-brand-accent/30 bg-brand-accent-soft px-3.5 py-1 text-[11px] font-extrabold text-brand-accent">
+                <i class="fas fa-shopping-cart text-[10px]"></i>
+                Shopping Bag
+            </span>
+            <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-content-main md:text-3xl">
+                My Cart
+            </h1>
+            <p class="mt-1 text-xs font-medium text-content-muted">
+                @if (items().length > 0) {
+                {{ numOfItems() }} {{ numOfItems() === 1 ? 'item' : 'items' }} ready for checkout.
+                } @else {
+                Review your selected items and proceed whenever you're ready.
+                }
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+            @if (items().length > 0) {
+            <button type="button" (click)="onClearCart()" [disabled]="isClearing()"
+                class="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-brand-danger/30 bg-brand-danger-soft px-4 py-2.5 text-xs font-extrabold text-brand-danger transition-all hover:bg-brand-danger hover:text-white focus:ring-2 focus:ring-brand-primary/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                @if (isClearing()) {
+                <i class="fas fa-spinner fa-spin text-[11px]"></i>
+                } @else {
+                <i class="fas fa-trash-can text-[11px]"></i>
+                }
+                <span>Clear Cart</span>
+            </button>
+            }
+
+            <a routerLink="/shop"
+                class="inline-flex items-center gap-2 rounded-2xl border border-line-subtle bg-surface-card px-4 py-2.5 text-xs font-extrabold text-content-main shadow-2xs transition-all hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30 focus:outline-none">
+                <i class="fas fa-arrow-left text-[11px]"></i>
+                <span>Continue Shopping</span>
+            </a>
+        </div>
+    </div>
+
+    @if (isLoading() && items().length === 0) {
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div class="space-y-4 lg:col-span-8">
+            @for (n of [1, 2]; track n) {
+            <div class="h-32 animate-pulse rounded-3xl border border-line-subtle bg-surface-card p-4"></div>
+            }
+        </div>
+        <div class="h-64 animate-pulse rounded-3xl border border-line-subtle bg-surface-card p-5 lg:col-span-4"></div>
+    </div>
+    } @else if (items().length === 0) {
+    <div
+        class="animate-cartify-in mx-auto flex max-w-lg flex-col items-center rounded-4xl border border-line-subtle bg-surface-card px-6 py-14 text-center shadow-2xs">
+        <div
+            class="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-primary-soft text-2xl text-brand-primary">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h2 class="mt-4 text-lg font-extrabold text-content-main">Your cart is empty</h2>
+        <p class="mt-1.5 text-xs leading-relaxed text-content-muted">
+            Browse the catalog and add items to your cart to place an order.
+        </p>
+        <a routerLink="/shop" style="background: var(--grad-primary);"
+            class="mt-6 inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-xs font-extrabold text-brand-on-primary shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none">
+            <span>Start Shopping</span>
+            <i class="fas fa-arrow-right text-[11px]"></i>
+        </a>
+    </div>
+    } @else {
+    <div class="animate-cartify-in grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
+        <!-- Items List -->
+        <div class="min-w-0 space-y-4 lg:col-span-8">
+            @for (item of items(); track item._id) {
+            <article
+                class="flex min-w-0 flex-col gap-4 rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-2xs transition-all hover:border-brand-primary/40 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex min-w-0 items-center gap-4">
+                    <a [routerLink]="['/product-details', item.product._id]"
+                        class="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-line-subtle bg-surface-muted focus:ring-2 focus:ring-brand-primary/30 focus:outline-none">
+                        <img [src]="item.product.imageCover" [alt]="item.product.title" loading="lazy"
+                            class="h-full w-full object-cover" />
+                    </a>
+
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-bold">
+                            <span class="text-brand-secondary">{{ item.product.brand.name }}</span>
+                            <span class="text-content-soft">•</span>
+                            <span class="text-content-muted">{{ item.product.category.name }}</span>
+                        </div>
+
+                        <a [routerLink]="['/product-details', item.product._id]"
+                            class="mt-1 line-clamp-1 text-sm font-extrabold text-content-main [overflow-wrap:anywhere] transition-colors hover:text-brand-primary focus:text-brand-primary focus:outline-none sm:text-base">
+                            {{ item.product.title }}
+                        </a>
+
+                        <p class="mt-1 text-xs font-semibold text-content-muted">
+                            Unit price: <strong class="text-content-main">{{ item.price }} EGP</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quantity & Remove -->
+                <div
+                    class="flex items-center justify-between gap-4 border-t border-line-subtle/70 pt-3 sm:border-t-0 sm:pt-0">
+                    <div class="flex items-center gap-2 rounded-2xl border border-line-subtle bg-surface-muted p-1">
+                        <button type="button" (click)="onUpdateQuantity(item, item.count - 1)"
+                            [disabled]="updatingId() === item.product._id || removingId() === item.product._id"
+                            aria-label="Decrease quantity"
+                            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl bg-surface-card text-xs font-extrabold text-content-main transition-colors hover:text-brand-primary focus:ring-2 focus:ring-brand-primary/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+                            <i class="fas fa-minus text-[10px]"></i>
+                        </button>
+
+                        <span class="min-w-7 text-center text-xs font-extrabold text-content-main">
+                            @if (updatingId() === item.product._id) {
+                            <i class="fas fa-spinner fa-spin text-[10px]"></i>
+                            } @else {
+                            {{ item.count }}
+                            }
+                        </span>
+
+                        <button type="button" (click)="onUpdateQuantity(item, item.count + 1)"
+                            [disabled]="updatingId() === item.product._id || removingId() === item.product._id"
+                            aria-label="Increase quantity"
+                            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl bg-surface-card text-xs font-extrabold text-content-main transition-colors hover:text-brand-primary focus:ring-2 focus:ring-brand-primary/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+                            <i class="fas fa-plus text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-right">
+                        <p class="text-sm font-extrabold text-brand-primary">
+                            {{ item.price * item.count }} EGP
+                        </p>
+                        <button type="button" (click)="onRemoveItem(item)"
+                            [disabled]="removingId() === item.product._id"
+                            class="mt-1 inline-flex cursor-pointer items-center gap-1 text-[11px] font-bold text-brand-danger transition-opacity hover:opacity-80 focus:ring-2 focus:ring-brand-danger/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+                            @if (removingId() === item.product._id) {
+                            <i class="fas fa-spinner fa-spin text-[10px]"></i>
+                            <span>Removing...</span>
+                            } @else {
+                            <i class="fas fa-trash text-[10px]"></i>
+                            <span>Remove</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </article>
+            }
+        </div>
+
+        <!-- Order Summary -->
+        <aside class="min-w-0 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-2xs lg:col-span-4">
+            <h2 class="text-base font-extrabold text-content-main">Order Summary</h2>
+
+            <!-- Coupon -->
+            <form (ngSubmit)="onApplyCoupon()" class="mt-4 flex gap-2">
+                <input type="text" [(ngModel)]="couponCode" name="couponCode" placeholder="Coupon code"
+                    class="w-full min-w-0 rounded-2xl border border-line-subtle bg-surface-muted px-3.5 py-2.5 text-xs font-semibold text-content-main placeholder:text-content-soft focus:border-brand-secondary focus:bg-surface-card focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none" />
+                <button type="submit" [disabled]="isApplyingCoupon() || !couponCode.trim()"
+                    class="shrink-0 cursor-pointer rounded-2xl border border-brand-secondary/35 bg-brand-secondary-soft px-4 py-2.5 text-xs font-extrabold text-brand-secondary transition-colors hover:bg-brand-secondary hover:text-white focus:ring-2 focus:ring-brand-secondary/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+                    {{ isApplyingCoupon() ? '...' : 'Apply' }}
+                </button>
+            </form>
+
+            <div class="mt-5 space-y-3 border-t border-line-subtle pt-4 text-xs">
+                <div class="flex items-center justify-between text-content-muted">
+                    <span>Items ({{ numOfItems() }})</span>
+                    <span class="font-bold text-content-main">{{ totalPrice() }} EGP</span>
+                </div>
+
+                @if (totalAfterDiscount() !== null && totalAfterDiscount()! < totalPrice()) { <div
+                    class="flex items-center justify-between rounded-xl bg-brand-accent-soft px-3 py-2 text-brand-accent">
+                    <span class="font-bold">After Coupon</span>
+                    <span class="text-sm font-extrabold">{{ totalAfterDiscount() }} EGP</span>
+            </div>
+            }
+
+            <div class="flex items-center justify-between border-t border-line-subtle pt-3 text-sm">
+                <span class="font-extrabold text-content-main">Total</span>
+                <span class="text-lg font-extrabold text-brand-primary">
+                    {{
+                    totalAfterDiscount() !== null && totalAfterDiscount()! < totalPrice() ? totalAfterDiscount() :
+                        totalPrice() }} EGP </span>
+            </div>
+    </div>
+
+    <a routerLink="/check-out" style="background: var(--grad-primary);"
+        class="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-xs font-extrabold text-brand-on-primary shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none sm:text-sm">
+        <span>Proceed to Checkout</span>
+        <i class="fas fa-arrow-right text-xs"></i>
+    </a>
+    </aside>
+    </div>
+    }
+</section>

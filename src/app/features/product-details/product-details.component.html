@@ -1,0 +1,435 @@
+<section class="mx-auto w-full max-w-6xl overflow-x-clip px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Top Breadcrumb / Actions -->
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <a routerLink="/shop"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-line-subtle bg-surface-card px-3.5 py-2 text-xs font-bold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/25 focus:outline-none">
+            <i class="fas fa-arrow-left text-[11px]"></i>
+            <span>Back to Shop</span>
+        </a>
+
+        <a routerLink="/reviews"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-line-subtle bg-surface-card px-3.5 py-2 text-xs font-bold text-content-main transition-colors hover:border-brand-secondary hover:text-brand-secondary focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none">
+            <i class="fas fa-star text-[11px] text-brand-accent"></i>
+            <span>All Store Reviews</span>
+        </a>
+    </div>
+
+    @if (isLoadingProduct()) {
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div class="h-96 animate-pulse rounded-3xl border border-line-subtle bg-surface-card lg:col-span-6"></div>
+        <div class="space-y-4 lg:col-span-6">
+            <div class="h-6 w-1/3 animate-pulse rounded bg-surface-card"></div>
+            <div class="h-10 w-3/4 animate-pulse rounded bg-surface-card"></div>
+            <div class="h-24 w-full animate-pulse rounded bg-surface-card"></div>
+            <div class="h-12 w-1/2 animate-pulse rounded bg-surface-card"></div>
+        </div>
+    </div>
+    } @else if (productError() || !product()) {
+    <div
+        class="mx-auto flex max-w-md flex-col items-center rounded-3xl border border-line-subtle bg-surface-card px-6 py-12 text-center shadow-2xs">
+        <div
+            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-danger-soft text-xl text-brand-danger">
+            <i class="fas fa-circle-exclamation"></i>
+        </div>
+        <h1 class="mt-4 text-base font-extrabold text-content-main">
+            {{ productError() || 'Product unavailable' }}
+        </h1>
+        <p class="mt-1 text-xs text-content-muted">
+            Return to the catalog to explore available items.
+        </p>
+        <a routerLink="/shop" style="background: var(--grad-primary);"
+            class="mt-5 inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none">
+            <span>Go to Shop</span>
+        </a>
+    </div>
+    } @else {
+    @let item = product()!;
+
+    <!-- Main Product Layout -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <!-- Gallery -->
+        <div class="min-w-0 space-y-3 lg:col-span-6">
+            <div class="overflow-hidden rounded-3xl border border-line-subtle bg-surface-card shadow-2xs">
+                <img [src]="activeImage()" [alt]="item.title" class="h-80 w-full object-cover sm:h-96" />
+            </div>
+
+            @if (galleryImages().length > 1) {
+            <div class="flex gap-2.5 overflow-x-auto pb-1">
+                @for (imgUrl of galleryImages(); track imgUrl) {
+                <button type="button" (click)="selectImage(imgUrl)"
+                    class="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl border transition-all focus:ring-2 focus:ring-brand-primary/40 focus:outline-none"
+                    [class.border-brand-primary]="activeImage() === imgUrl" [class.ring-2]="activeImage() === imgUrl"
+                    [class.ring-brand-primary/30]="activeImage() === imgUrl"
+                    [class.border-line-subtle]="activeImage() !== imgUrl">
+                    <img [src]="imgUrl" [alt]="item.title + ' thumbnail'" loading="lazy"
+                        class="h-full w-full object-cover" />
+                </button>
+                }
+            </div>
+            }
+        </div>
+
+        <!-- Product Info & Actions -->
+        <div class="min-w-0 space-y-5 lg:col-span-6">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+                @if (item.category?.name) {
+                <span
+                    class="rounded-full border border-brand-primary/25 bg-brand-primary-soft px-3 py-1 text-[11px] font-extrabold text-brand-primary">
+                    {{ item.category?.name }}
+                </span>
+                }
+                @if (item.brand?.name) {
+                <span
+                    class="rounded-full bg-brand-secondary-soft px-3 py-1 text-[11px] font-extrabold text-brand-secondary">
+                    {{ item.brand?.name }}
+                </span>
+                }
+            </div>
+
+            <h1 class="text-2xl font-extrabold tracking-tight text-content-main [overflow-wrap:anywhere] sm:text-3xl">
+                {{ item.title }}
+            </h1>
+
+            <!-- Rating & Stock -->
+            <div class="flex flex-wrap items-center gap-4 text-xs font-bold">
+                <div class="inline-flex items-center gap-1.5 text-content-main">
+                    <i class="fas fa-star text-brand-accent"></i>
+                    <span>{{ (item.ratingsAverage ?? 0).toFixed(1) }}</span>
+                    <span class="font-medium text-content-muted">
+                        ({{ item.ratingsQuantity ?? totalReviewResults() ?? reviews().length }} reviews)
+                    </span>
+                </div>
+
+                <span class="text-content-soft">•</span>
+
+                @if ((item.quantity ?? 1) > 0) {
+                <span class="text-emerald-600">In Stock</span>
+                } @else {
+                <span class="text-brand-danger">Out of Stock</span>
+                }
+            </div>
+
+            <!-- Price -->
+            <div class="flex flex-wrap items-baseline gap-3 border-y border-line-subtle py-4">
+                <span class="text-2xl font-extrabold text-brand-primary">
+                    {{ effectivePrice() | currency: 'EGP ' }}
+                </span>
+                @if (
+                item.priceAfterDiscount &&
+                item.priceAfterDiscount > 0 &&
+                item.priceAfterDiscount < item.price ) { <span
+                    class="text-sm font-bold text-content-muted line-through">
+                    {{ item.price | currency: 'EGP ' }}
+                    </span>
+                    }
+            </div>
+
+            <!-- Description -->
+            <p class="text-xs leading-relaxed text-content-muted [overflow-wrap:anywhere] sm:text-sm">
+                {{ item.description }}
+            </p>
+
+            <!-- Primary CTA Buttons -->
+            <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+                <button type="button" (click)="onAddToCart()" [disabled]="isAddingToCart() || (item.quantity ?? 1) < 1"
+                    style="background: var(--grad-primary);"
+                    class="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-xs font-extrabold text-brand-on-primary shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm">
+                    @if (isAddingToCart()) {
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Adding to Cart...</span>
+                    } @else {
+                    <i class="fas fa-cart-plus"></i>
+                    <span>Add to Cart</span>
+                    }
+                </button>
+
+                <button type="button" (click)="onToggleWishlist()" [disabled]="isTogglingWishlist()"
+                    class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-line-subtle bg-surface-card px-5 py-3.5 text-xs font-extrabold text-content-main transition-colors hover:border-brand-secondary hover:text-brand-secondary focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm">
+                    <i class="fa-heart" [class.fas]="isWishlisted()" [class.far]="!isWishlisted()"
+                        [class.text-brand-secondary]="isWishlisted()"></i>
+                    <span>{{ isWishlisted() ? 'Saved' : 'Wishlist' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Reviews Section -->
+    <div class="mt-12 grid grid-cols-1 gap-8 border-t border-line-subtle pt-10 lg:grid-cols-12">
+        <!-- Write or Update Review -->
+        <form id="review-form-card" [formGroup]="reviewForm" (ngSubmit)="onSubmitReview()"
+            class="h-fit min-w-0 space-y-4 rounded-2xl border border-line-subtle bg-surface-card p-5 shadow-2xs lg:col-span-5 sm:p-6">
+            <div class="flex items-center justify-between gap-2">
+                <h2 class="text-base font-extrabold text-content-main">
+                    {{ isEditingExistingReview() ? 'Update Review' : 'Write a Review' }}
+                </h2>
+                @if (isEditingExistingReview()) {
+                <span
+                    class="rounded-full bg-brand-secondary-soft px-2.5 py-0.5 text-[11px] font-extrabold text-brand-secondary">
+                    Your Review
+                </span>
+                }
+            </div>
+
+            <div class="min-w-0">
+                <label for="review-rating" class="mb-1.5 block text-xs font-bold text-content-main">
+                    Rating
+                </label>
+                <select id="review-rating" formControlName="rating"
+                    class="block w-full rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-bold text-content-main transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm">
+                    <option [value]="5">5 — Excellent</option>
+                    <option [value]="4">4 — Good</option>
+                    <option [value]="3">3 — Average</option>
+                    <option [value]="2">2 — Fair</option>
+                    <option [value]="1">1 — Poor</option>
+                </select>
+            </div>
+
+            <div class="min-w-0">
+                <label for="review-text" class="mb-1.5 block text-xs font-bold text-content-main">
+                    Your Review *
+                </label>
+                <textarea id="review-text" rows="4" formControlName="review"
+                    placeholder="Share your experience with this product..."
+                    class="block w-full max-w-full [overflow-wrap:anywhere] rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm"></textarea>
+                @if (reviewForm.controls.review.touched && reviewForm.controls.review.invalid) {
+                <p class="mt-1 text-xs font-bold text-brand-danger">
+                    Please write at least 3 characters.
+                </p>
+                }
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="submit" [disabled]="isSubmittingReview()" style="background: var(--grad-primary);"
+                    class="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl px-5 py-3 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm">
+                    @if (isSubmittingReview()) {
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>{{ isEditingExistingReview() ? 'Updating Review...' : 'Posting Review...' }}</span>
+                    } @else {
+                    <span>{{ isEditingExistingReview() ? 'Update Review' : 'Submit Review' }}</span>
+                    }
+                </button>
+
+                @if (editingReviewId()) {
+                <button type="button" (click)="onCancelEditReview()"
+                    class="inline-flex cursor-pointer items-center justify-center rounded-2xl border border-line-subtle bg-surface-card px-4 py-3 text-xs font-extrabold text-content-main transition-colors hover:border-brand-secondary hover:text-brand-secondary focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none">
+                    Cancel
+                </button>
+                }
+            </div>
+        </form>
+
+        <!-- Customer Reviews List + Pagination -->
+        <div class="min-w-0 space-y-4 lg:col-span-7">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-base font-extrabold text-content-main">
+                    Customer Reviews ({{ totalReviewResults() || reviews().length }})
+                </h2>
+                @if (totalReviewPages() > 1) {
+                <span class="text-xs font-bold text-content-muted">
+                    Page {{ currentReviewPage() }} of {{ totalReviewPages() }}
+                </span>
+                }
+            </div>
+
+            @if (isLoadingReviews()) {
+            <div class="space-y-3">
+                @for (n of [1, 2]; track n) {
+                <div class="h-28 animate-pulse rounded-2xl border border-line-subtle bg-surface-card p-4"></div>
+                }
+            </div>
+            } @else if (reviews().length === 0) {
+            <div class="rounded-2xl border border-line-subtle bg-surface-card p-6 text-center">
+                <p class="text-xs font-semibold text-content-muted">
+                    No reviews yet for this product. Be the first to share your thoughts.
+                </p>
+            </div>
+            } @else {
+            <div class="space-y-3">
+                @for (rev of reviews(); track rev._id) {
+                @let expanded = isReviewExpanded(rev._id);
+                @let isLong = (rev.review?.length ?? 0) > 180;
+                @let mine = isOwnReview(rev);
+
+                <article class="min-w-0 overflow-hidden rounded-2xl border bg-surface-card p-4 shadow-2xs"
+                    [class.border-brand-primary]="mine" [class.border-line-subtle]="!mine">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex min-w-0 items-center gap-2">
+                            <span class="text-xs font-extrabold text-content-main [overflow-wrap:anywhere]">
+                                {{ getReviewerLabel(rev) }}
+                            </span>
+                            @if (mine) {
+                            <span
+                                class="rounded-full bg-brand-primary-soft px-2 py-0.5 text-[10px] font-extrabold text-brand-primary">
+                                You
+                            </span>
+                            }
+                        </div>
+
+                        <span
+                            class="inline-flex items-center gap-1 rounded-full bg-brand-accent-soft px-2.5 py-0.5 text-[11px] font-extrabold text-brand-accent">
+                            <i class="fas fa-star text-[10px]"></i>
+                            {{ rev.rating }} / 5
+                        </span>
+                    </div>
+
+                    <p class="mt-2 text-xs leading-relaxed text-content-muted [overflow-wrap:anywhere]"
+                        [class.line-clamp-3]="!expanded && isLong">
+                        {{ rev.review }}
+                    </p>
+
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            @if (isLong) {
+                            <button type="button" (click)="toggleReviewExpansion(rev._id)"
+                                class="cursor-pointer text-[11px] font-extrabold text-brand-primary hover:underline focus:ring-2 focus:ring-brand-primary/25 focus:outline-none">
+                                {{ expanded ? 'Show less' : 'Read more' }}
+                            </button>
+                            }
+                        </div>
+
+                        @if (mine) {
+                        <div class="flex items-center gap-2">
+                            <button type="button" (click)="onStartEditReview(rev)"
+                                class="inline-flex cursor-pointer items-center gap-1 rounded-xl border border-brand-secondary/30 bg-brand-secondary-soft px-3 py-1.5 text-[11px] font-extrabold text-brand-secondary transition-colors hover:bg-brand-secondary hover:text-white focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none">
+                                <i class="fas fa-pen text-[10px]"></i>
+                                <span>Edit</span>
+                            </button>
+
+                            <button type="button" (click)="onDeleteReview(rev)"
+                                [disabled]="deletingReviewId() === rev._id"
+                                class="inline-flex cursor-pointer items-center gap-1 rounded-xl border border-brand-danger/30 bg-brand-danger-soft px-3 py-1.5 text-[11px] font-extrabold text-brand-danger transition-colors hover:bg-brand-danger hover:text-white focus:ring-2 focus:ring-brand-danger/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                                @if (deletingReviewId() === rev._id) {
+                                <i class="fas fa-spinner fa-spin text-[10px]"></i>
+                                <span>Deleting...</span>
+                                } @else {
+                                <i class="fas fa-trash text-[10px]"></i>
+                                <span>Delete</span>
+                                }
+                            </button>
+                        </div>
+                        }
+                    </div>
+                </article>
+                }
+            </div>
+
+            <!-- Pagination Buttons -->
+            @if (totalReviewPages() > 1) {
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-3">
+                <button type="button" (click)="onGoToReviewPage(currentReviewPage() - 1)"
+                    [disabled]="currentReviewPage() <= 1 || isLoadingReviews()"
+                    class="cursor-pointer rounded-xl border border-line-subtle bg-surface-card px-3 py-1.5 text-xs font-extrabold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50">
+                    Prev
+                </button>
+
+                @for (pageNum of reviewPages(); track pageNum) {
+                <button type="button" (click)="onGoToReviewPage(pageNum)" [disabled]="isLoadingReviews()"
+                    class="cursor-pointer rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition-all disabled:cursor-not-allowed"
+                    [class.bg-brand-primary]="currentReviewPage() === pageNum"
+                    [class.text-brand-on-primary]="currentReviewPage() === pageNum"
+                    [class.bg-surface-card]="currentReviewPage() !== pageNum"
+                    [class.text-content-main]="currentReviewPage() !== pageNum"
+                    [class.border]="currentReviewPage() !== pageNum"
+                    [class.border-line-subtle]="currentReviewPage() !== pageNum">
+                    {{ pageNum }}
+                </button>
+                }
+
+                <button type="button" (click)="onGoToReviewPage(currentReviewPage() + 1)"
+                    [disabled]="currentReviewPage() >= totalReviewPages() || isLoadingReviews()"
+                    class="cursor-pointer rounded-xl border border-line-subtle bg-surface-card px-3 py-1.5 text-xs font-extrabold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50">
+                    Next
+                </button>
+            </div>
+            }
+            }
+        </div>
+    </div>
+
+    <!-- Related Products by Category -->
+    <div class="mt-12 border-t border-line-subtle pt-10">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+                <span
+                    class="inline-block rounded-full bg-brand-secondary-soft px-3 py-0.5 text-[11px] font-bold text-brand-secondary">
+                    {{ item.category?.name || 'More in Category' }}
+                </span>
+                <h2 class="mt-1 text-lg font-extrabold text-content-main sm:text-xl">
+                    Related Products
+                </h2>
+            </div>
+
+            <a routerLink="/shop"
+                class="inline-flex items-center gap-1.5 rounded-xl border border-line-subtle bg-surface-card px-3.5 py-2 text-xs font-bold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/25 focus:outline-none">
+                <span>View All</span>
+                <i class="fas fa-arrow-right text-[11px]"></i>
+            </a>
+        </div>
+
+        @if (isLoadingRelated()) {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @for (n of [1, 2, 3, 4]; track n) {
+            <div class="h-72 animate-pulse rounded-2xl border border-line-subtle bg-surface-card p-4"></div>
+            }
+        </div>
+        } @else if (relatedProducts().length === 0) {
+        <div class="rounded-2xl border border-line-subtle bg-surface-card p-6 text-center">
+            <p class="text-xs font-semibold text-content-muted">
+                No other products found in this category right now.
+            </p>
+        </div>
+        } @else {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @for (rel of relatedProducts(); track rel._id || rel.id) {
+            @let relId = rel._id || rel.id || '';
+            @let relPrice =
+            rel.priceAfterDiscount &&
+            rel.priceAfterDiscount > 0 &&
+            rel.priceAfterDiscount < rel.price ? rel.priceAfterDiscount : rel.price; <article
+                class="flex min-w-0 flex-col justify-between overflow-hidden rounded-2xl border border-line-subtle bg-surface-card p-4 shadow-2xs transition-colors hover:border-brand-primary/40">
+                <div class="min-w-0">
+                    <a [routerLink]="['/product-details', relId]"
+                        class="block overflow-hidden rounded-xl border border-line-subtle bg-surface-muted focus:ring-2 focus:ring-brand-primary/25 focus:outline-none">
+                        <img [src]="rel.imageCover" [alt]="rel.title" loading="lazy"
+                            class="h-44 w-full object-cover transition-transform duration-300 hover:scale-105" />
+                    </a>
+
+                    <div class="mt-3 flex items-center justify-between gap-2 text-[11px] font-bold">
+                        <span class="truncate text-brand-secondary">
+                            {{ rel.brand?.name || item.category?.name || 'Cartify' }}
+                        </span>
+                        <span class="inline-flex shrink-0 items-center gap-1 text-content-main">
+                            <i class="fas fa-star text-[10px] text-brand-accent"></i>
+                            {{ (rel.ratingsAverage ?? 0).toFixed(1) }}
+                        </span>
+                    </div>
+
+                    <a [routerLink]="['/product-details', relId]"
+                        class="mt-1 line-clamp-1 text-sm font-extrabold text-content-main [overflow-wrap:anywhere] transition-colors hover:text-brand-primary focus:text-brand-primary focus:outline-none">
+                        {{ rel.title }}
+                    </a>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between gap-2 border-t border-line-subtle pt-3">
+                    <span class="text-sm font-extrabold text-brand-primary">
+                        {{ relPrice | currency: 'EGP ' }}
+                    </span>
+
+                    <button type="button" (click)="onQuickAddToCart(rel)" [disabled]="quickAddingId() === relId"
+                        aria-label="Quick add to cart" style="background: var(--grad-primary);"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                        @if (quickAddingId() === relId) {
+                        <i class="fas fa-spinner fa-spin text-[11px]"></i>
+                        } @else {
+                        <i class="fas fa-cart-plus text-[11px]"></i>
+                        }
+                        <span>Add</span>
+                    </button>
+                </div>
+                </article>
+                }
+        </div>
+        }
+    </div>
+    }
+</section>

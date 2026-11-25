@@ -1,0 +1,178 @@
+<section class="w-full max-w-full overflow-x-clip border-t border-line-subtle pt-6">
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+            <span
+                class="inline-block rounded-full border border-brand-accent/30 bg-brand-accent-soft px-3 py-0.5 text-[11px] font-bold text-brand-accent">
+                Customer Feedback
+            </span>
+            <h2 class="mt-1 text-base font-extrabold text-content-main sm:text-lg">
+                Reviews ({{ totalResults() }})
+            </h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
+            <a routerLink="/reviews"
+                class="inline-flex items-center gap-1.5 rounded-xl border border-brand-secondary/30 bg-brand-secondary-soft px-3 py-1.5 text-brand-secondary transition-colors hover:bg-brand-secondary hover:text-white focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none">
+                <i class="fas fa-comments text-[11px]"></i>
+                <span>All Reviews</span>
+            </a>
+
+            @if (totalPages() > 1) {
+            <button type="button" (click)="loadReviews(productId(), currentPage() - 1)"
+                [disabled]="currentPage() <= 1 || isLoading()"
+                class="cursor-pointer rounded-xl border border-line-subtle bg-surface-card px-3 py-1.5 text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40">
+                Prev
+            </button>
+            <span class="text-content-muted">
+                Page {{ currentPage() }} / {{ totalPages() }}
+            </span>
+            <button type="button" (click)="loadReviews(productId(), currentPage() + 1)"
+                [disabled]="!hasMorePages() || isLoading()"
+                class="cursor-pointer rounded-xl border border-line-subtle bg-surface-card px-3 py-1.5 text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40">
+                Next
+            </button>
+            }
+        </div>
+    </div>
+
+    <!-- Create / Update Review Form -->
+    <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()"
+        class="mb-6 w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-line-subtle bg-surface-muted/60 p-4 sm:p-5">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-xs font-extrabold uppercase tracking-wide text-content-main sm:text-sm">
+                {{ userReview() ? 'Update Review' : 'Write a Review' }}
+            </h3>
+        </div>
+
+        <!-- Star Picker -->
+        <div class="mb-3 flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold text-content-muted">Rating:</span>
+            <div class="flex items-center gap-1" (mouseleave)="hoverRating.set(0)">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                <button type="button" (mouseenter)="hoverRating.set(star)" (click)="setRating(star)"
+                    [attr.aria-label]="'Rate ' + star + ' out of 5 stars'"
+                    class="cursor-pointer rounded-md p-0.5 text-base transition-transform duration-150 hover:scale-110 active:scale-95 focus:ring-2 focus:ring-brand-accent/40 focus:outline-none">
+                    <i class="fas fa-star"
+                        [class.text-brand-accent]="star <= (hoverRating() || reviewForm.controls.rating.value)"
+                        [class.text-content-soft]="star > (hoverRating() || reviewForm.controls.rating.value)"></i>
+                </button>
+                }
+            </div>
+            <span class="ml-1 text-xs font-extrabold text-content-main">
+                {{ reviewForm.controls.rating.value }} / 5
+            </span>
+        </div>
+
+        <!-- Review Textarea -->
+        <div class="w-full min-w-0">
+            <textarea rows="3" formControlName="review"
+                placeholder="Share your thoughts on quality, sizing, or delivery..."
+                class="block w-full max-w-full break-words [overflow-wrap:anywhere] rounded-2xl border border-line-subtle bg-surface-card px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm"></textarea>
+
+            @if (reviewForm.controls.review.touched && reviewForm.controls.review.invalid) {
+            <p class="mt-1.5 [overflow-wrap:anywhere] text-xs font-bold text-brand-danger">
+                @if (reviewForm.controls.review.errors?.['required']) {
+                Please enter a review before submitting.
+                } @else if (reviewForm.controls.review.errors?.['minlength']) {
+                Review must be at least 3 characters long.
+                }
+            </p>
+            }
+        </div>
+
+        <div class="mt-3 flex justify-end">
+            <button type="submit" [disabled]="isSubmitting()" style="background: var(--grad-primary);"
+                class="inline-flex cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-extrabold text-brand-on-primary shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-95 focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                @if (isSubmitting()) {
+                <i class="fas fa-spinner fa-spin text-xs"></i>
+                <span>{{ userReview() ? 'Updating...' : 'Submitting...' }}</span>
+                } @else {
+                <i class="fas fa-paper-plane text-xs"></i>
+                <span>{{ userReview() ? 'Update Review' : 'Submit Review' }}</span>
+                }
+            </button>
+        </div>
+    </form>
+
+    <!-- Reviews List -->
+    @if (isLoading() && reviews().length === 0) {
+    <div class="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+        @for (n of [1, 2]; track n) {
+        <div class="h-28 animate-pulse rounded-2xl border border-line-subtle bg-surface-muted/50 p-4"></div>
+        }
+    </div>
+    } @else if (reviews().length > 0) {
+    <div class="grid w-full max-w-full grid-cols-1 gap-3 sm:grid-cols-2">
+        @for (rev of reviews(); track rev._id) {
+        <article
+            class="animate-cartify-in flex w-full min-w-0 max-w-full flex-col justify-between overflow-hidden rounded-2xl border bg-surface-card p-4 shadow-2xs transition-all hover:border-brand-primary/40"
+            [class.border-brand-primary]="userReview()?._id === rev._id" [class.ring-2]="userReview()?._id === rev._id"
+            [class.ring-brand-primary/25]="userReview()?._id === rev._id"
+            [class.border-line-subtle]="userReview()?._id !== rev._id">
+            <div class="w-full min-w-0">
+                <div class="mb-2 flex items-start justify-between gap-2">
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-xs font-extrabold text-content-main sm:text-sm">
+                            {{ authorName(rev) }}
+                        </p>
+                        <span class="block truncate text-[10px] font-medium text-content-soft">
+                            {{ rev.createdAt | date: 'mediumDate' }}
+                        </span>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-0.5 text-xs text-brand-accent">
+                        @for (star of [1, 2, 3, 4, 5]; track star) {
+                        <i class="fas fa-star" [class.text-content-soft]="star > rev.rating"></i>
+                        }
+                        <span class="ml-1 font-extrabold text-content-main">{{ rev.rating }}</span>
+                    </div>
+                </div>
+
+                <p
+                    class="whitespace-pre-line break-words [overflow-wrap:anywhere] text-xs leading-relaxed text-content-muted">
+                    {{ displayReviewText(rev) }}
+                </p>
+
+                @if (isLongReview(rev.review)) {
+                <button type="button" (click)="toggleExpand(rev._id)"
+                    class="mt-1.5 cursor-pointer rounded text-[11px] font-extrabold text-brand-primary hover:text-brand-primary-hover hover:underline focus:ring-2 focus:ring-brand-primary/25 focus:outline-none">
+                    {{ isExpanded(rev._id) ? 'Show less' : 'Read more' }}
+                </button>
+                }
+            </div>
+
+            @if (canEdit(rev) || canDelete(rev)) {
+            <div
+                class="mt-3 flex items-center justify-end gap-3 border-t border-line-subtle/60 pt-2.5 text-xs font-bold">
+                @if (canEdit(rev)) {
+                <button type="button" (click)="focusEdit(rev)"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded text-brand-secondary transition-colors hover:text-brand-secondary-hover focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none">
+                    <i class="fas fa-pen text-[10px]"></i>
+                    <span>Edit</span>
+                </button>
+                }
+
+                @if (canDelete(rev)) {
+                <button type="button" (click)="onDelete(rev)" [disabled]="deletingId() === rev._id"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded text-brand-danger transition-opacity hover:opacity-80 focus:ring-2 focus:ring-brand-danger/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+                    @if (deletingId() === rev._id) {
+                    <i class="fas fa-spinner fa-spin text-[10px]"></i>
+                    <span>Deleting...</span>
+                    } @else {
+                    <i class="fas fa-trash text-[10px]"></i>
+                    <span>Delete</span>
+                    }
+                </button>
+                }
+            </div>
+            }
+        </article>
+        }
+    </div>
+    } @else {
+    <p
+        class="rounded-2xl border border-line-subtle bg-surface-muted/50 p-5 text-center text-xs font-medium text-content-muted">
+        No reviews yet. Be the first to review this product.
+    </p>
+    }
+</section>

@@ -1,0 +1,224 @@
+<div class="overflow-x-clip">
+    @if (currentSlide(); as slide) {
+    <section (mouseenter)="setPaused(true)" (mouseleave)="setPaused(false)" (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
+        class="relative mx-auto mt-5 flex min-h-[480px] max-w-7xl flex-col justify-between overflow-hidden rounded-[2rem] border border-line-subtle bg-[#1b120e] shadow-2xl transition-all duration-500 sm:min-h-[540px] lg:min-h-[580px]">
+        @for (item of slides(); track item.id; let i = $index) {
+        @if (i === activeIndex()) {
+        <img [src]="item.image" [alt]="item.title"
+            class="hero-slide-zoom pointer-events-none absolute inset-0 h-full w-full object-cover object-center will-change-transform" />
+        }
+        }
+
+        <div class="hero-scrim pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+        <!-- Top Bar -->
+        <div class="relative z-10 flex items-center justify-between gap-4 px-6 pt-6 sm:px-10 sm:pt-8 md:px-14">
+            <div class="flex flex-wrap items-center gap-2.5">
+                <span
+                    class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-1.5 text-xs font-extrabold tracking-wide text-[#fff7ed] shadow-sm backdrop-blur-md">
+                    <span class="h-2 w-2 rounded-full bg-brand-primary"></span>
+                    {{ slide.title }}
+                </span>
+
+                @if (slide.productsCount && slide.productsCount > 0) {
+                <span
+                    class="hidden rounded-full border border-white/15 bg-black/35 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-md sm:inline-block">
+                    {{ slide.productsCount }} Products
+                </span>
+                }
+            </div>
+
+            @if (slides().length > 1) {
+            <div
+                class="rounded-full border border-white/20 bg-black/40 px-3.5 py-1.5 font-mono text-xs font-bold tracking-widest text-white/95 backdrop-blur-md">
+                {{ activeIndex() + 1 }} / {{ slides().length }}
+            </div>
+            }
+        </div>
+
+        <!-- Main Content + Thumbnails -->
+        <div
+            class="relative z-10 grid items-end gap-8 px-6 pb-7 pt-10 sm:px-10 sm:pb-9 md:px-14 md:pb-11 lg:grid-cols-12">
+            <div class="space-y-4 lg:col-span-8">
+                <h1
+                    class="line-clamp-2 max-w-2xl text-3xl font-black leading-[1.08] tracking-tight text-white drop-shadow-sm sm:text-5xl lg:text-[3.5rem]">
+                    {{ slide.title }}
+                </h1>
+
+                <p class="max-w-xl text-sm leading-relaxed text-[#f5ebe0]/90 sm:text-base">
+                    {{ slide.description }}
+                </p>
+
+                <div class="flex flex-wrap items-center gap-3.5 pt-2">
+                    <a [routerLink]="[slide.targetRoute]"
+                        [queryParams]="slide.categoryId ? { category: slide.categoryId } : null"
+                        class="group inline-flex cursor-pointer items-center gap-2.5 rounded-2xl px-7 py-3.5 text-sm font-extrabold text-brand-on-primary shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-2xl active:scale-95"
+                        style="background: var(--grad-primary);">
+                        <span>Shop {{ slide.title }}</span>
+                        <i
+                            class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1"></i>
+                    </a>
+
+                    <a routerLink="/shop"
+                        class="inline-flex items-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-md transition-all duration-200 hover:border-white/50 hover:bg-white/20">
+                        <span>All Products</span>
+                    </a>
+                </div>
+            </div>
+
+            @if (slides().length > 1) {
+            <div class="flex items-center justify-between gap-3 lg:col-span-4 lg:flex-col lg:items-end lg:justify-end">
+                <div class="flex items-center gap-2.5">
+                    @for (item of slides(); track item.id; let i = $index) {
+                    <button type="button" (click)="goToSlide(i)" [attr.aria-label]="'Slide ' + (i + 1)" [class]="
+                    i === activeIndex()
+                      ? 'h-14 w-14 cursor-pointer overflow-hidden rounded-2xl border-2 border-brand-accent bg-black/40 p-0.5 shadow-lg ring-2 ring-brand-accent/30 transition-all duration-300 sm:h-16 sm:w-16'
+                      : 'h-14 w-14 cursor-pointer overflow-hidden rounded-2xl border border-white/25 bg-black/35 opacity-70 transition-all duration-300 hover:scale-105 hover:opacity-100 sm:h-16 sm:w-16'
+                  ">
+                        <img [src]="item.image" [alt]="item.title" class="h-full w-full rounded-[13px] object-cover" />
+                    </button>
+                    }
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" (click)="prevSlide()" aria-label="Previous slide"
+                        class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/20 bg-black/40 text-white backdrop-blur-md transition hover:scale-105 hover:border-white/40 hover:bg-black/60">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button type="button" (click)="nextSlide()" aria-label="Next slide"
+                        class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/20 bg-black/40 text-white backdrop-blur-md transition hover:scale-105 hover:border-white/40 hover:bg-black/60">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+
+        @if (slides().length > 1) {
+        <div class="relative z-10 h-1 w-full bg-white/15">
+            <div class="hero-progress-bar h-full" [class.is-paused]="isPaused()"
+                style="background: var(--grad-primary);">
+            </div>
+        </div>
+        }
+    </section>
+    }
+
+    <!-- 4 Quick Links -->
+    <div class="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-8 sm:grid-cols-2 lg:grid-cols-4 md:px-6">
+        <a routerLink="/addresses"
+            class="group flex items-center gap-4 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/50 hover:shadow-xl">
+            <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-primary-soft text-lg text-brand-primary shadow-xs transition-transform duration-300 group-hover:scale-110">
+                <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-content-main transition-colors group-hover:text-brand-primary">
+                    Fast Delivery
+                </h3>
+                <p class="text-xs text-content-muted">Free shipping on orders 500 EGP+</p>
+            </div>
+        </a>
+
+        <a routerLink="/check-out"
+            class="group flex items-center gap-4 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-secondary/50 hover:shadow-xl">
+            <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-secondary-soft text-lg text-brand-secondary shadow-xs transition-transform duration-300 group-hover:scale-110">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-content-main transition-colors group-hover:text-brand-secondary">
+                    Secure Checkout
+                </h3>
+                <p class="text-xs text-content-muted">Cash or online checkout</p>
+            </div>
+        </a>
+
+        <a routerLink="/cart"
+            class="group flex items-center gap-4 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-accent/50 hover:shadow-xl">
+            <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-accent-soft text-lg text-brand-accent shadow-xs transition-transform duration-300 group-hover:scale-110">
+                <i class="fa-solid fa-tags"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-content-main transition-colors group-hover:text-brand-accent">
+                    Promo Coupons
+                </h3>
+                <p class="text-xs text-content-muted">Apply codes right in cart</p>
+            </div>
+        </a>
+
+        <a routerLink="/settings"
+            class="group flex items-center gap-4 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-danger/50 hover:shadow-xl">
+            <div
+                class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-danger-soft text-lg text-brand-danger shadow-xs transition-transform duration-300 group-hover:scale-110">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-content-main transition-colors group-hover:text-brand-danger">
+                    Account &amp; Care
+                </h3>
+                <p class="text-xs text-content-muted">Manage profile &amp; orders</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- 2 Section Banners -->
+    <div class="mx-auto grid max-w-7xl gap-5 px-4 pb-10 md:grid-cols-2 md:px-6">
+        <div
+            class="group flex h-full flex-col justify-between rounded-3xl border border-brand-primary/30 bg-brand-primary-soft p-8 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <div>
+                <span
+                    class="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-surface-card px-3.5 py-1 text-xs font-bold text-brand-primary shadow-xs">
+                    <i class="fa-solid fa-bolt transition-transform duration-300 group-hover:scale-110"></i>
+                    Categories
+                </span>
+                <h2 class="mb-2 text-2xl font-extrabold text-content-main md:text-3xl">
+                    {{ firstCategoryName() || 'Browse Categories' }}
+                </h2>
+                <p class="mb-6 text-sm text-content-muted">
+                    @if (realCategoriesCount() !== null) {
+                    {{ realCategoriesCount() }} categories available in store.
+                    } @else {
+                    Explore all store categories.
+                    }
+                </p>
+            </div>
+            <div>
+                <a routerLink="/catagories"
+                    class="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold text-brand-on-primary shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                    style="background: var(--grad-primary);">
+                    View Categories
+                    <i class="fa-solid fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div
+            class="group flex h-full flex-col justify-between rounded-3xl border border-brand-secondary/30 bg-brand-secondary-soft p-8 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <div>
+                <span
+                    class="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-surface-card px-3.5 py-1 text-xs font-bold text-brand-secondary shadow-xs">
+                    <i class="fa-solid fa-sparkles transition-transform duration-300 group-hover:rotate-12"></i>
+                    Storefront
+                </span>
+                <h2 class="mb-2 text-2xl font-extrabold text-content-main md:text-3xl">All Products</h2>
+                <p class="mb-6 text-sm text-content-muted">
+                    @if (realProductsCount() !== null) {
+                    {{ realProductsCount() }} products ready to browse.
+                    } @else {
+                    Browse the full product catalog.
+                    }
+                </p>
+            </div>
+            <div>
+                <a routerLink="/shop"
+                    class="inline-flex items-center gap-2 rounded-2xl bg-brand-secondary px-5 py-3 text-sm font-bold text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-secondary-hover hover:shadow-lg">
+                    Go to Shop
+                    <i class="fa-solid fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

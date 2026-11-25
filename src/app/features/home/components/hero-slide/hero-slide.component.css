@@ -1,0 +1,54 @@
+.hero-scrim {
+  background:
+    linear-gradient(
+      95deg,
+      rgba(22, 14, 11, 0.88) 0%,
+      rgba(22, 14, 11, 0.62) 48%,
+      rgba(22, 14, 11, 0.25) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(22, 14, 11, 0.28) 0%,
+      rgba(22, 14, 11, 0.12) 45%,
+      rgba(22, 14, 11, 0.82) 100%
+    );
+}
+
+@keyframes heroSubtleZoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.07);
+  }
+}
+
+.hero-slide-zoom {
+  animation: heroSubtleZoom 7s ease-out forwards;
+}
+
+@keyframes heroProgressFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.hero-progress-bar {
+  animation: heroProgressFill 5s linear infinite;
+}
+
+.hero-progress-bar.is-paused {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide-zoom,
+  .hero-progress-bar {
+    animation: none;
+    transform: none;
+    width: 100%;
+  }
+}

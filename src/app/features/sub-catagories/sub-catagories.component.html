@@ -1,0 +1,139 @@
+<section class="mx-auto max-w-7xl px-5 py-8 md:px-6">
+    <!-- Header -->
+    <div class="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="flex items-center gap-3.5">
+            @if (selectedCategory(); as cat) {
+            <img [src]="cat.image" [alt]="cat.name"
+                class="h-14 w-14 shrink-0 rounded-2xl border border-line-subtle object-cover shadow-xs" />
+            }
+
+            <div>
+                <span
+                    class="mb-1 inline-block rounded-full bg-brand-secondary-soft px-3 py-1 text-xs font-bold text-brand-secondary">
+                    {{ selectedCategory() ? 'Category Subcategories' : 'Cartify Subcategories' }}
+                </span>
+                <h1 class="text-2xl font-extrabold tracking-tight text-content-main md:text-3xl">
+                    {{ selectedCategory() ? selectedCategory()!.name : 'All Subcategories' }}
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <a routerLink="/catagories"
+                class="rounded-2xl border border-line-subtle bg-surface-card px-4 py-2 text-xs font-bold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary">
+                All Categories
+            </a>
+
+            @if (selectedCategory()) {
+            <a routerLink="/sub-catagories"
+                class="rounded-2xl border border-line-subtle bg-surface-card px-4 py-2 text-xs font-bold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary">
+                Show All Subcategories
+            </a>
+            }
+
+            @if (!isLoading() && !errorMessage()) {
+            <p class="text-sm font-semibold text-content-muted">
+                Showing <span class="font-extrabold text-content-main">{{ subCategories().length }}</span>
+                of <span class="font-extrabold text-content-main">{{ totalResults() }}</span>
+            </p>
+            }
+        </div>
+    </div>
+
+    <!-- Specific Subcategory Details Card (from getSpecificSubCategory) -->
+    @if (isLoadingDetails()) {
+    <div class="mb-6 rounded-3xl border border-line-subtle bg-surface-card p-5 text-sm text-content-muted">
+        Loading subcategory details...
+    </div>
+    } @else if (activeSubCategoryDetails(); as details) {
+    <div
+        class="animate-cartify-in mb-6 flex flex-col justify-between gap-4 rounded-3xl border border-brand-primary/40 bg-surface-card p-5 shadow-sm sm:flex-row sm:items-center">
+        <div class="space-y-1">
+            <span
+                class="inline-block rounded-full bg-brand-primary-soft px-2.5 py-0.5 text-[11px] font-bold text-brand-primary">
+                Subcategory Details
+            </span>
+            <h2 class="text-lg font-extrabold text-content-main">{{ details.name }}</h2>
+            <p class="text-xs text-content-muted">
+                Slug: <span class="font-semibold text-content-main">{{ details.slug }}</span> ·
+                Category ID: <span class="font-semibold text-content-main">{{ details.category }}</span> ·
+                ID: <span class="font-semibold text-content-main">{{ details._id }}</span>
+            </p>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-2.5">
+            <a [routerLink]="['/shop']" [queryParams]="{ subcategory: details._id }"
+                class="rounded-2xl bg-brand-primary px-4 py-2 text-xs font-extrabold text-white transition-opacity hover:opacity-90">
+                Shop Items
+            </a>
+            <button type="button" (click)="closeSubCategoryDetails()"
+                class="cursor-pointer rounded-2xl border border-line-subtle bg-surface-muted px-3.5 py-2 text-xs font-bold text-content-main transition-colors hover:bg-surface-card">
+                Close
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Loading Skeleton -->
+    @if (isLoading()) {
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
+        <div class="h-32 animate-pulse rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-xs">
+            <div class="mb-2.5 h-5 w-24 rounded-full bg-surface-muted"></div>
+            <div class="mb-2 h-5 w-3/4 rounded-lg bg-surface-muted"></div>
+            <div class="h-3.5 w-1/2 rounded-lg bg-surface-muted"></div>
+        </div>
+        }
+    </div>
+    } @else if (errorMessage()) {
+    <div class="rounded-3xl border border-brand-danger/30 bg-brand-danger-soft p-8 text-center">
+        <p class="mb-4 text-sm font-bold text-brand-danger">{{ errorMessage() }}</p>
+        <button type="button" (click)="loadData()"
+            class="cursor-pointer rounded-2xl bg-brand-danger px-5 py-2.5 text-sm font-extrabold text-white transition-opacity hover:opacity-90">
+            Try Again
+        </button>
+    </div>
+    } @else {
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        @for (sub of subCategories(); track sub._id) {
+        <article
+            class="animate-cartify-in group flex flex-col justify-between rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/50 hover:shadow-lg">
+            <div class="space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <span
+                        class="inline-block rounded-full bg-brand-primary-soft px-2.5 py-0.5 text-[10px] font-bold text-brand-primary">
+                        Subcategory
+                    </span>
+                    <span class="truncate text-[10px] font-medium text-content-soft">
+                        #{{ sub.slug }}
+                    </span>
+                </div>
+
+                <h2
+                    class="line-clamp-1 text-base font-extrabold text-content-main transition-colors group-hover:text-brand-primary">
+                    {{ sub.name }}
+                </h2>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between gap-2 border-t border-line-subtle pt-2.5 text-xs">
+                <button type="button" (click)="viewSubCategoryDetails(sub._id, $event)"
+                    class="cursor-pointer rounded-xl bg-surface-muted px-2.5 py-1 text-[11px] font-bold text-content-main transition-colors hover:bg-brand-secondary-soft hover:text-brand-secondary">
+                    Details
+                </button>
+
+                <a [routerLink]="['/shop']" [queryParams]="{ subcategory: sub._id }"
+                    class="inline-flex shrink-0 items-center gap-1 font-bold text-brand-secondary transition-colors group-hover:text-brand-primary">
+                    Browse
+                    <i
+                        class="fas fa-arrow-right text-[10px] transition-transform duration-200 group-hover:translate-x-0.5"></i>
+                </a>
+            </div>
+        </article>
+        } @empty {
+        <p class="col-span-full py-10 text-center text-sm text-content-muted">
+            No subcategories found.
+        </p>
+        }
+    </div>
+    }
+</section>

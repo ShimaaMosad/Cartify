@@ -1,3 +1,223 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import 'flowbite/src/themes/default';
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Backgrounds */
+  --bg-page: #fbf8f3;
+  --bg-card: #ffffff;
+  --bg-muted: #f3ece1;
+  --bg-footer: #f2eadf;
+
+  /* Text */
+  --text-main: #1f1714;
+  --text-muted: #5c4e48;
+  --text-soft: #87766e;
+
+  /* Borders */
+  --border-subtle: #e5d9c9;
+  --border-strong: #d1bfa9;
+
+  /* Brand & Actions */
+  --color-primary: #d95d39;
+  --color-primary-hover: #bd4928;
+  --color-primary-soft: #fdece6;
+  --color-on-primary: #ffffff;
+
+  --color-secondary: #7a3e65;
+  --color-secondary-hover: #622f50;
+  --color-secondary-soft: #f7eaf2;
+
+  --color-accent: #c2820a;
+  --color-accent-soft: #fef6e4;
+
+  --color-danger: #c82333;
+  --color-danger-hover: #a71d2a;
+  --color-danger-soft: #fdebec;
+
+  --grad-primary: linear-gradient(135deg, #d95d39 0%, #e8834a 100%);
+  --grad-hero: linear-gradient(
+    110deg,
+    rgba(251, 248, 243, 0.96) 0%,
+    rgba(251, 248, 243, 0.84) 55%,
+    rgba(217, 93, 57, 0.22) 100%
+  );
+}
+
+.dark {
+  /* Backgrounds - تدرج أوضح بين الصفحة والكارت والعناصر الفرعية */
+  --bg-page: #14100e;
+  --bg-card: #211b18;
+  --bg-muted: #2d2521;
+  --bg-footer: #100c0b;
+
+  /* Text - وضوح عالي بدون بهتان أو اختفاء */
+  --text-main: #fcf8f4;
+  --text-muted: #cfc0b7;
+  --text-soft: #9c8b82;
+
+  /* Borders - حدود واضحة تفصل الكروت والسكاشن */
+  --border-subtle: #382e29;
+  --border-strong: #52443d;
+
+  /* Brand & Actions */
+  --color-primary: #eb7854;
+  --color-primary-hover: #f58d6c;
+  --color-primary-soft: rgba(235, 120, 84, 0.18);
+  --color-on-primary: #ffffff;
+
+  --color-secondary: #cf88b3;
+  --color-secondary-hover: #de9ec5;
+  --color-secondary-soft: rgba(207, 136, 179, 0.18);
+
+  --color-accent: #f2b729;
+  --color-accent-soft: rgba(242, 183, 41, 0.16);
+
+  --color-danger: #f43f5e;
+  --color-danger-hover: #fb7185;
+  --color-danger-soft: rgba(244, 63, 94, 0.18);
+
+  --grad-primary: linear-gradient(135deg, #eb7854 0%, #d4623f 100%);
+  --grad-hero: linear-gradient(
+    110deg,
+    rgba(20, 16, 14, 0.96) 0%,
+    rgba(33, 27, 24, 0.86) 55%,
+    rgba(235, 120, 84, 0.22) 100%
+  );
+}
+
+@theme {
+  --font-sans: 'Exo', sans-serif;
+
+  --color-surface-page: var(--bg-page);
+  --color-surface-card: var(--bg-card);
+  --color-surface-muted: var(--bg-muted);
+  --color-surface-footer: var(--bg-footer);
+
+  --color-content-main: var(--text-main);
+  --color-content-muted: var(--text-muted);
+  --color-content-soft: var(--text-soft);
+
+  --color-line-subtle: var(--border-subtle);
+  --color-line-strong: var(--border-strong);
+
+  --color-brand-primary: var(--color-primary);
+  --color-brand-primary-hover: var(--color-primary-hover);
+  --color-brand-primary-soft: var(--color-primary-soft);
+  --color-brand-on-primary: var(--color-on-primary);
+
+  --color-brand-secondary: var(--color-secondary);
+  --color-brand-secondary-hover: var(--color-secondary-hover);
+  --color-brand-secondary-soft: var(--color-secondary-soft);
+
+  --color-brand-accent: var(--color-accent);
+  --color-brand-accent-soft: var(--color-accent-soft);
+
+  --color-brand-danger: var(--color-danger);
+  --color-brand-danger-hover: var(--color-danger-hover);
+  --color-brand-danger-soft: var(--color-danger-soft);
+}
+
+@layer base {
+  html,
+  body {
+    font-family: 'Exo', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  ::-moz-selection {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+}
+
+.cartify-hero-banner {
+  background-image: var(--grad-hero), url('/assets/home-slider-1.d79601a8.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.highlight-rose ::selection {
+  background-color: var(--color-secondary);
+  color: #ffffff;
+}
+@keyframes cartifyFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cartifyPop {
+  from {
+    opacity: 0.45;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-cartify-in {
+  animation: cartifyFadeUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-cartify-pop {
+  animation: cartifyPop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* تظبيط زوايا وظل التوستر الجاهز */
+.toast-container .ngx-toastr {
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px -5px rgba(43, 30, 22, 0.18) !important;
+}
+
+/* ألوان متناسقة مع Cartify بدل الألوان الفاقعة الافتراضية */
+.toast-success {
+  background-color: #b85d43 !important; /* Terracotta Rose */
+}
+
+.toast-error {
+  background-color: #9e2a2b !important; /* Deep Warm Crimson */
+}
+
+.toast-info {
+  background-color: #5c4033 !important; /* Warm Espresso */
+}
+
+.toast-warning {
+  background-color: #c88a4b !important; /* Warm Amber */
+}
+
+/* الخط اللي تحت (Progress Bar) */
+.toast-progress {
+  height: 4px !important;
+  border-radius: 999px !important;
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  opacity: 1 !important;
+}
+@layer base {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+}

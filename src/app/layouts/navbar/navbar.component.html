@@ -1,0 +1,456 @@
+<header
+    class="sticky top-0 z-40 w-full overflow-x-clip border-b border-line-subtle bg-surface-card/95 shadow-sm backdrop-blur-md transition-all duration-300">
+    <!-- Top Utility Bar -->
+    <div class="hidden border-b border-line-subtle bg-surface-muted/70 md:block">
+        <div
+            class="mx-auto flex max-w-7xl items-center justify-between px-6 py-2 text-xs font-semibold text-content-muted">
+            <div class="flex items-center gap-5">
+                <span class="flex items-center gap-1.5 transition-colors hover:text-brand-primary">
+                    <i class="fas fa-truck-fast text-brand-primary"></i>
+                    <span>Free Shipping on Orders 500 EGP</span>
+                </span>
+                <span class="hidden items-center gap-1.5 lg:flex">
+                    <i class="fas fa-sparkles text-brand-secondary"></i>
+                    <span>New Arrivals Daily</span>
+                </span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <span class="hidden items-center gap-1.5 lg:flex">
+                    <i class="fas fa-envelope text-brand-secondary"></i>
+                    <span>support@cartify.store</span>
+                </span>
+
+                <span class="hidden h-3.5 w-px bg-line-strong lg:inline-block"></span>
+
+                @if (isLoggedIn()) {
+                <div class="flex items-center gap-2.5">
+                    <a routerLink="/settings"
+                        class="group flex cursor-pointer items-center gap-1.5 rounded-full bg-surface-card px-2.5 py-1 text-content-main shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:text-brand-primary">
+                        <span
+                            class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-secondary-soft text-[10px] font-extrabold text-brand-secondary">
+                            <i class="far fa-user"></i>
+                        </span>
+                        <span class="font-bold">{{ userName() }}</span>
+                    </a>
+
+                    <a routerLink="/addresses"
+                        class="flex cursor-pointer items-center gap-1 rounded-full px-2.5 py-1 font-bold text-content-main transition-colors duration-200 hover:bg-surface-card hover:text-brand-primary">
+                        <i class="fas fa-location-dot text-[11px] text-brand-primary"></i>
+                        <span>Addresses</span>
+                    </a>
+
+                    <a routerLink="/orders"
+                        class="flex cursor-pointer items-center gap-1 rounded-full px-2.5 py-1 font-bold text-content-main transition-colors duration-200 hover:bg-surface-card hover:text-brand-secondary">
+                        <i class="fas fa-box text-[11px] text-brand-secondary"></i>
+                        <span>Orders</span>
+                    </a>
+
+                    <button type="button" (click)="onSignOut()"
+                        class="group flex cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1 text-brand-danger transition-all duration-200 hover:bg-brand-danger-soft">
+                        <i
+                            class="fas fa-right-from-bracket text-[11px] transition-transform duration-200 group-hover:translate-x-0.5"></i>
+                        <span class="font-bold">Sign Out</span>
+                    </button>
+                </div>
+                } @else {
+                <div class="flex items-center gap-3">
+                    <a routerLink="/login"
+                        class="flex cursor-pointer items-center gap-1 font-bold text-content-main transition-colors hover:text-brand-secondary">
+                        <i class="far fa-user text-[11px] text-brand-secondary"></i>
+                        <span>Sign In</span>
+                    </a>
+                    <span class="text-line-strong">/</span>
+                    <a routerLink="/register"
+                        class="flex cursor-pointer items-center gap-1 font-bold text-brand-primary transition-colors hover:text-brand-primary-hover">
+                        <i class="fas fa-user-plus text-[11px]"></i>
+                        <span>Sign Up</span>
+                    </a>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navbar -->
+    <nav class="mx-auto flex max-w-7xl items-center justify-between gap-5 px-5 py-3.5 md:px-6">
+        <!-- Brand -->
+        <a routerLink="/" class="group flex shrink-0 cursor-pointer items-center gap-2.5">
+            <span
+                class="flex h-11 w-11 items-center justify-center rounded-2xl text-brand-on-primary shadow-md transition-all duration-300 group-hover:-translate-y-0.5 group-hover:rotate-6 group-hover:shadow-lg"
+                style="background: var(--grad-primary);">
+                <i class="fas fa-bag-shopping text-base"></i>
+            </span>
+            <span
+                class="text-xl font-extrabold tracking-tight text-content-main transition-transform duration-300 group-hover:translate-x-0.5">
+                Carti<span class="text-brand-primary">fy</span>
+            </span>
+        </a>
+
+        <!-- Search Bar (Desktop & Tablet) -->
+        <div class="hidden max-w-md grow md:block">
+            <div
+                class="group relative flex items-center rounded-full transition-transform duration-200 focus-within:-translate-y-0.5">
+                <input #desktopSearchInput type="text" placeholder="Search for products, brands and more..."
+                    (keydown.enter)="onSearch(desktopSearchInput.value)"
+                    class="w-full rounded-full border border-line-subtle bg-surface-muted py-2.5 pl-5 pr-12 text-sm font-medium text-content-main placeholder:text-content-soft shadow-none outline-none ring-0 transition-colors duration-200 hover:border-brand-primary focus:border-brand-primary focus:bg-surface-card focus:outline-none focus:ring-0" />
+                <button type="button" aria-label="Search" (click)="onSearch(desktopSearchInput.value)"
+                    style="background: var(--grad-primary);"
+                    class="absolute right-1.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-brand-on-primary transition-transform duration-200 hover:scale-105 active:scale-95">
+                    <i class="fas fa-search text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Desktop Links -->
+        <div class="hidden items-center gap-6 text-sm font-bold text-content-muted lg:flex">
+            <a routerLink="/" routerLinkActive="text-brand-primary" [routerLinkActiveOptions]="{ exact: true }"
+                class="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:text-brand-primary">
+                Home
+            </a>
+            <a routerLink="/shop" routerLinkActive="text-brand-primary"
+                class="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:text-brand-primary">
+                Shop
+            </a>
+
+            <div class="group relative">
+                <button type="button"
+                    class="flex cursor-pointer items-center gap-1.5 py-2 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:text-brand-primary">
+                    Categories
+                    <i
+                        class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
+                </button>
+                <div
+                    class="invisible absolute left-0 z-50 w-52 translate-y-2 rounded-2xl border border-line-subtle bg-surface-card p-2 opacity-0 shadow-xl transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    <a routerLink="/catagories" routerLinkActive="bg-brand-primary-soft text-brand-primary"
+                        class="block cursor-pointer rounded-xl px-3.5 py-2.5 text-sm font-semibold text-content-main transition-all duration-200 hover:translate-x-1 hover:bg-brand-primary-soft hover:text-brand-primary">
+                        All Categories
+                    </a>
+                    <a routerLink="/sub-catagories" routerLinkActive="bg-brand-secondary-soft text-brand-secondary"
+                        class="block cursor-pointer rounded-xl px-3.5 py-2.5 text-sm font-semibold text-content-main transition-all duration-200 hover:translate-x-1 hover:bg-brand-secondary-soft hover:text-brand-secondary">
+                        Subcategories
+                    </a>
+                </div>
+            </div>
+
+            <a routerLink="/brands" routerLinkActive="text-brand-primary"
+                class="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:text-brand-primary">
+                Brands
+            </a>
+        </div>
+
+        <!-- Right Controls -->
+        <div class="flex items-center gap-2.5 lg:gap-3.5">
+            <!-- Theme Switcher -->
+            <button type="button" (click)="themeService.toggleTheme()"
+                [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+                class="group flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-line-subtle bg-surface-muted text-content-main shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent hover:shadow-md active:scale-95">
+                @if (themeService.isDark()) {
+                <i
+                    class="fas fa-sun text-sm text-brand-accent transition-transform duration-300 group-hover:rotate-90"></i>
+                } @else {
+                <i class="fas fa-moon text-sm transition-transform duration-300 group-hover:-rotate-12"></i>
+                }
+            </button>
+
+            <!-- Wishlist -->
+            <button type="button" aria-label="Wishlist" routerLink="/wishlist"
+                class="group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-line-subtle bg-surface-muted text-content-main shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-danger hover:bg-brand-danger-soft hover:text-brand-danger hover:shadow-md active:scale-95">
+                <i class="far fa-heart text-base transition-transform duration-300 group-hover:scale-110"></i>
+                <span
+                    class="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-danger px-1 text-[11px] font-extrabold text-white shadow-sm">
+                    {{ wishlistCount() }}
+                </span>
+            </button>
+
+            <!-- Cart -->
+            <button type="button" aria-label="Cart" routerLink="/cart"
+                class="group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-line-subtle bg-surface-muted text-content-main shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary hover:bg-brand-primary-soft hover:text-brand-primary hover:shadow-md active:scale-95">
+                <i class="fas fa-shopping-cart text-base transition-transform duration-300 group-hover:scale-110"></i>
+                <span style="background: var(--grad-primary);"
+                    class="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-extrabold text-brand-on-primary shadow-md">
+                    {{ cartCount() }}
+                </span>
+            </button>
+
+            <!-- Hamburger Menu Button -->
+            <button type="button" (click)="openDrawer()" aria-label="Open menu"
+                class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-line-subtle bg-surface-muted text-content-main shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary hover:text-brand-primary hover:shadow-md active:scale-95 lg:hidden">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<!-- Backdrop Overlay -->
+@if (isDrawerOpen()) {
+<div (click)="closeDrawer()"
+    class="fixed inset-0 z-40 bg-black/45 backdrop-blur-xs transition-opacity duration-200 lg:hidden"></div>
+}
+
+<!-- Slide-out Drawer -->
+<aside
+    class="fixed right-0 top-0 z-50 h-screen w-80 overflow-x-clip overflow-y-hidden rounded-l-3xl border-l border-line-subtle bg-surface-card shadow-2xl transition-transform duration-300 ease-out lg:hidden"
+    [class.translate-x-0]="isDrawerOpen()" [class.translate-x-full]="!isDrawerOpen()">
+    <!-- Primary Drawer View -->
+    <div class="flex h-full w-full flex-col justify-between overflow-y-auto p-6 transition-transform duration-300 ease-out"
+        [class.-translate-x-full]="isCategoriesPanelOpen()" [class.translate-x-0]="!isCategoriesPanelOpen()">
+        <div>
+            <!-- Drawer Top Header -->
+            <div class="mb-6 flex items-center justify-between border-b border-line-subtle pb-4">
+                <a routerLink="/" (click)="closeDrawer()"
+                    class="text-xl font-extrabold tracking-tight text-content-main">
+                    Carti<span class="text-brand-primary">fy</span>
+                </a>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" (click)="themeService.toggleTheme()"
+                        class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-line-subtle bg-surface-muted text-content-main transition-colors duration-200 hover:border-brand-accent hover:bg-brand-accent-soft hover:text-brand-accent">
+                        @if (themeService.isDark()) {
+                        <i class="fas fa-sun text-xs text-brand-accent"></i>
+                        } @else {
+                        <i class="fas fa-moon text-xs"></i>
+                        }
+                    </button>
+
+                    <button type="button" (click)="closeDrawer()" aria-label="Close menu"
+                        class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-line-subtle bg-surface-muted text-content-muted transition-colors duration-200 hover:border-brand-danger/40 hover:bg-brand-danger-soft hover:text-brand-danger">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Products inside Drawer -->
+            <div
+                class="relative mb-6 flex items-center transition-transform duration-200 focus-within:-translate-y-0.5">
+                <input #drawerSearchInput type="text" placeholder="Search products..."
+                    (keydown.enter)="onDrawerSearch(drawerSearchInput.value)"
+                    class="w-full rounded-2xl border border-line-subtle bg-surface-muted py-2.5 pl-4 pr-11 text-sm font-medium text-content-main placeholder:text-content-soft shadow-none outline-none ring-0 transition-colors duration-200 hover:border-brand-primary focus:border-brand-primary focus:bg-surface-card focus:outline-none focus:ring-0" />
+                <button type="button" aria-label="Search" (click)="onDrawerSearch(drawerSearchInput.value)"
+                    style="background: var(--grad-primary);"
+                    class="absolute right-1.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-xl text-brand-on-primary transition-transform duration-200 hover:scale-105 active:scale-95">
+                    <i class="fas fa-search text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="mb-6 border-b border-line-subtle pb-5">
+                <ul class="space-y-1.5 text-sm font-bold text-content-main">
+                    <li>
+                        <a (click)="closeDrawer()" routerLink="/"
+                            class="flex cursor-pointer items-center rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a (click)="closeDrawer()" routerLink="/shop"
+                            class="flex cursor-pointer items-center rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            <span>Shop</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button type="button" (click)="openCategoriesPanel()"
+                            class="flex w-full cursor-pointer items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-bold text-content-main transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            <span>Categories</span>
+                            <i class="fas fa-chevron-right text-xs text-content-soft"></i>
+                        </button>
+                    </li>
+                    <li>
+                        <a (click)="closeDrawer()" routerLink="/brands"
+                            class="flex cursor-pointer items-center rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            <span>Brands</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Wishlist & Cart -->
+            <div class="space-y-2.5">
+                <a (click)="closeDrawer()" routerLink="/wishlist"
+                    class="flex cursor-pointer items-center justify-between rounded-2xl border border-line-subtle bg-surface-muted/70 px-3.5 py-2.5 transition-colors duration-200 hover:border-brand-danger/40 hover:bg-brand-danger-soft/50">
+                    <span class="flex items-center gap-3">
+                        <span
+                            class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-danger-soft text-brand-danger">
+                            <i class="far fa-heart text-sm"></i>
+                        </span>
+                        <span class="text-sm font-bold text-content-main">Wishlist</span>
+                    </span>
+                    <span class="rounded-full bg-brand-danger px-2.5 py-0.5 text-xs font-extrabold text-white">
+                        {{ wishlistCount() }}
+                    </span>
+                </a>
+
+                <a (click)="closeDrawer()" routerLink="/cart"
+                    class="flex cursor-pointer items-center justify-between rounded-2xl border border-line-subtle bg-surface-muted/70 px-3.5 py-2.5 transition-colors duration-200 hover:border-brand-primary/40 hover:bg-brand-primary-soft/50">
+                    <span class="flex items-center gap-3">
+                        <span
+                            class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary-soft text-brand-primary">
+                            <i class="fas fa-shopping-cart text-sm"></i>
+                        </span>
+                        <span class="text-sm font-bold text-content-main">Cart</span>
+                    </span>
+                    <span style="background: var(--grad-primary);"
+                        class="rounded-full px-2.5 py-0.5 text-xs font-extrabold text-brand-on-primary">{{
+                        cartCount() }}</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Auth Section at Bottom of Drawer -->
+        <div class="mt-6 space-y-2.5 border-t border-line-subtle pt-5">
+            @if (isLoggedIn()) {
+            <a (click)="closeDrawer()" routerLink="/settings"
+                class="flex cursor-pointer items-center gap-3 rounded-2xl border border-line-subtle bg-surface-muted/70 px-3.5 py-2.5 transition-colors duration-200 hover:border-brand-secondary/40 hover:bg-brand-secondary-soft/50">
+                <span
+                    class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-secondary-soft text-brand-secondary">
+                    <i class="far fa-user text-sm"></i>
+                </span>
+                <span class="text-sm font-extrabold text-content-main">{{ userName() }}</span>
+            </a>
+
+            <div class="grid grid-cols-2 gap-2">
+                <a (click)="closeDrawer()" routerLink="/addresses"
+                    class="flex cursor-pointer items-center justify-center gap-1.5 rounded-2xl border border-line-subtle bg-surface-muted/70 px-3 py-2 text-xs font-extrabold text-content-main transition-colors duration-200 hover:border-brand-primary/40 hover:text-brand-primary">
+                    <i class="fas fa-location-dot text-brand-primary"></i>
+                    <span>Addresses</span>
+                </a>
+
+                <a (click)="closeDrawer()" routerLink="/orders"
+                    class="flex cursor-pointer items-center justify-center gap-1.5 rounded-2xl border border-line-subtle bg-surface-muted/70 px-3 py-2 text-xs font-extrabold text-content-main transition-colors duration-200 hover:border-brand-secondary/40 hover:text-brand-secondary">
+                    <i class="fas fa-box text-brand-secondary"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+
+            <button type="button" (click)="onSignOut()"
+                class="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-brand-danger/30 bg-brand-danger-soft px-3.5 py-2.5 text-brand-danger transition-colors duration-200 hover:bg-brand-danger hover:text-white">
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/60 dark:bg-black/20">
+                    <i class="fas fa-right-from-bracket text-sm"></i>
+                </span>
+                <span class="text-sm font-extrabold">Sign Out</span>
+            </button>
+            } @else {
+            <a (click)="closeDrawer()" routerLink="/login"
+                class="flex cursor-pointer items-center gap-3 rounded-2xl border border-line-subtle bg-surface-muted/70 px-3.5 py-2.5 transition-colors duration-200 hover:border-brand-secondary/40 hover:bg-brand-secondary-soft/50">
+                <span
+                    class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-secondary-soft text-brand-secondary">
+                    <i class="far fa-user text-sm"></i>
+                </span>
+                <span class="text-sm font-extrabold text-content-main">Sign In</span>
+            </a>
+
+            <a (click)="closeDrawer()" routerLink="/register"
+                class="flex cursor-pointer items-center gap-3 rounded-2xl px-3.5 py-2.5 text-brand-on-primary transition-opacity duration-200 hover:opacity-95"
+                style="background: var(--grad-primary);">
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-black/15">
+                    <i class="fas fa-user-plus text-sm"></i>
+                </span>
+                <span class="text-sm font-extrabold">Sign Up</span>
+            </a>
+            }
+        </div>
+    </div>
+
+    <!-- Sub-Sidebar Slide Panel for Categories & Subcategories -->
+    <div class="absolute inset-0 flex h-full w-full flex-col justify-between overflow-y-auto bg-surface-card p-6 transition-transform duration-300 ease-out"
+        [class.translate-x-0]="isCategoriesPanelOpen()" [class.translate-x-full]="!isCategoriesPanelOpen()">
+        <div>
+            <!-- Sub-panel Header with Back Button -->
+            <div class="mb-6 flex items-center justify-between border-b border-line-subtle pb-4">
+                <button type="button" (click)="closeCategoriesPanel()"
+                    class="flex cursor-pointer items-center gap-2 rounded-xl px-2.5 py-1.5 text-sm font-bold text-content-main transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                    <span>Back</span>
+                </button>
+
+                <span class="text-sm font-extrabold tracking-tight text-content-main">Categories</span>
+
+                <button type="button" (click)="closeDrawer()" aria-label="Close menu"
+                    class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-line-subtle bg-surface-muted text-content-muted transition-colors duration-200 hover:border-brand-danger/40 hover:bg-brand-danger-soft hover:text-brand-danger">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Browse All Categories -->
+            <div class="mb-5">
+                <p class="mb-2 px-2 text-[11px] font-bold uppercase tracking-wider text-content-soft">
+                    Browse
+                </p>
+                <ul class="space-y-1.5 text-sm font-bold text-content-main">
+                    <li>
+                        <a routerLink="/catagories" (click)="closeDrawer()"
+                            class="flex cursor-pointer items-center gap-3 rounded-2xl border border-line-subtle bg-surface-muted/60 px-3.5 py-3 transition-colors duration-200 hover:border-brand-primary/40 hover:bg-brand-primary-soft/50 hover:text-brand-primary">
+                            <span
+                                class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary-soft text-brand-primary">
+                                <i class="fas fa-layer-group text-sm"></i>
+                            </span>
+                            <div>
+                                <span class="block">All Categories</span>
+                                <span class="block text-[11px] font-medium text-content-muted">Explore main
+                                    collections</span>
+                            </div>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a routerLink="/sub-catagories" (click)="closeDrawer()"
+                            class="flex cursor-pointer items-center gap-3 rounded-2xl border border-line-subtle bg-surface-muted/60 px-3.5 py-3 transition-colors duration-200 hover:border-brand-secondary/40 hover:bg-brand-secondary-soft/50 hover:text-brand-secondary">
+                            <span
+                                class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-secondary-soft text-brand-secondary">
+                                <i class="fas fa-tags text-sm"></i>
+                            </span>
+                            <div>
+                                <span class="block">Subcategories</span>
+                                <span class="block text-[11px] font-medium text-content-muted">Filter by specific
+                                    types</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Featured Categories Quick Links -->
+            <div>
+                <p class="mb-2 px-2 text-[11px] font-bold uppercase tracking-wider text-content-soft">
+                    Popular Categories
+                </p>
+                <ul class="space-y-1 text-sm font-semibold text-content-main">
+                    <li>
+                        <a routerLink="/shop" [queryParams]="{ category: 'mens-fashion' }" (click)="closeDrawer()"
+                            class="block cursor-pointer rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            Men's Fashion
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/shop" [queryParams]="{ category: 'womens-fashion' }" (click)="closeDrawer()"
+                            class="block cursor-pointer rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            Women's Fashion
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/shop" [queryParams]="{ category: 'electronics' }" (click)="closeDrawer()"
+                            class="block cursor-pointer rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            Electronics
+                        </a>
+                    </li>
+                    <li>
+                        <a routerLink="/shop" [queryParams]="{ category: 'beauty-health' }" (click)="closeDrawer()"
+                            class="block cursor-pointer rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
+                            Beauty & Health
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom View Shop CTA -->
+        <div class="mt-6 border-t border-line-subtle pt-4">
+            <a routerLink="/shop" (click)="closeDrawer()"
+                class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl py-3 text-sm font-extrabold text-brand-on-primary transition-opacity duration-200 hover:opacity-95"
+                style="background: var(--grad-primary);">
+                <span>Explore Full Catalog</span>
+                <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+    </div>
+</aside>

@@ -1,0 +1,271 @@
+<section class="mx-auto min-h-[calc(100vh-5rem)] max-w-6xl overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+            <span
+                class="inline-flex items-center gap-1.5 rounded-full border border-brand-accent/30 bg-brand-accent-soft px-3.5 py-1 text-[11px] font-extrabold text-brand-accent">
+                <i class="fas fa-lock text-[10px]"></i>
+                Secure Checkout
+            </span>
+            <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-content-main sm:text-3xl">
+                Checkout
+            </h1>
+            <p class="mt-1 text-xs font-medium text-content-muted sm:text-sm">
+                Your default shipping address is pre-filled below. Confirm or choose another destination.
+            </p>
+        </div>
+
+        <a routerLink="/addresses"
+            class="inline-flex items-center gap-2 rounded-2xl border border-line-subtle bg-surface-card px-4 py-2.5 text-xs font-extrabold text-content-main transition-colors hover:border-brand-secondary hover:text-brand-secondary focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none">
+            <i class="fas fa-location-dot text-[11px] text-brand-secondary"></i>
+            <span>Manage Addresses</span>
+        </a>
+    </div>
+
+    <!-- Selected / Active Address Summary Banner -->
+    @if (activeAddress(); as currentAddr) {
+    <div
+        class="mb-8 flex flex-col justify-between gap-4 rounded-3xl border border-brand-primary/35 bg-brand-primary-soft p-4 sm:flex-row sm:items-center sm:px-6">
+        <div class="min-w-0 space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+                <span
+                    class="inline-flex items-center gap-1 rounded-full bg-brand-primary px-2.5 py-0.5 text-[10px] font-extrabold text-brand-on-primary">
+                    <i class="fas fa-location-dot text-[9px]"></i>
+                    Selected Shipping Address
+                </span>
+                <span class="text-sm font-extrabold text-content-main [overflow-wrap:anywhere]">
+                    {{ currentAddr.name }}
+                </span>
+                <span
+                    class="rounded-full bg-brand-secondary-soft px-2.5 py-0.5 text-[11px] font-bold text-brand-secondary">
+                    {{ currentAddr.city }}
+                </span>
+            </div>
+
+            <p class="text-xs text-content-muted [overflow-wrap:anywhere]">
+                {{ currentAddr.details }}
+            </p>
+
+            <p class="text-xs font-bold text-content-main">
+                <i class="fas fa-phone mr-1.5 text-[11px] text-brand-secondary"></i>
+                {{ currentAddr.phone }}
+            </p>
+        </div>
+
+        @if (shippingForm.dirty) {
+        <button type="button" (click)="onReapplyActiveAddress()"
+            class="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl border border-brand-primary/35 bg-surface-card px-3.5 py-2 text-xs font-extrabold text-brand-primary transition-colors hover:bg-brand-primary hover:text-brand-on-primary focus:outline-none">
+            <i class="fas fa-rotate-left text-[11px]"></i>
+            <span>Reset to Saved</span>
+        </button>
+        }
+    </div>
+    }
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <!-- Left Column: Address Picker + Shipping Form + Payment Method -->
+        <div class="min-w-0 space-y-6 lg:col-span-7">
+            <!-- Saved Addresses Quick Selector -->
+            @if (addresses().length > 0) {
+            <div class="rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-2xs sm:p-6">
+                <div class="mb-3 flex items-center justify-between gap-2">
+                    <h2 class="text-sm font-extrabold text-content-main">Saved Addresses</h2>
+                    <span class="text-[11px] font-bold text-content-muted">
+                        Click to switch
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                    @for (addr of addresses(); track addr._id) {
+                    @let selected = activeAddress()?._id === addr._id;
+
+                    <button type="button" (click)="onSelectSavedAddress(addr)"
+                        class="flex min-w-0 cursor-pointer flex-col items-start rounded-2xl border p-3.5 text-left transition-all focus:ring-2 focus:ring-brand-primary/25 focus:outline-none"
+                        [class.border-brand-primary]="selected" [class.bg-brand-primary-soft]="selected"
+                        [class.border-line-subtle]="!selected" [class.bg-surface-card]="!selected">
+                        <div class="flex w-full items-center justify-between gap-2">
+                            <span class="truncate text-xs font-extrabold text-content-main">
+                                {{ addr.name }}
+                            </span>
+                            <span
+                                class="rounded-full bg-brand-secondary-soft px-2 py-0.5 text-[10px] font-bold text-brand-secondary">
+                                {{ addr.city }}
+                            </span>
+                        </div>
+                        <p class="mt-1 line-clamp-1 text-[11px] text-content-muted [overflow-wrap:anywhere]">
+                            {{ addr.details }}
+                        </p>
+                        <span class="mt-1 text-[11px] font-bold text-content-main">
+                            {{ addr.phone }}
+                        </span>
+                    </button>
+                    }
+                </div>
+            </div>
+            }
+
+            <!-- Shipping Address Form -->
+            <form [formGroup]="shippingForm" (ngSubmit)="onPlaceOrder()"
+                class="space-y-4 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-2xs sm:p-6">
+                <div class="flex items-center justify-between gap-2">
+                    <h2 class="text-base font-extrabold text-content-main">Shipping Details</h2>
+                    @if (activeAddress(); as currentAddr) {
+                    <span class="text-[11px] font-bold text-brand-secondary">
+                        Pre-filled from {{ currentAddr.name }}
+                    </span>
+                    }
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="min-w-0">
+                        <label for="ship-city" class="mb-1.5 block text-xs font-bold text-content-main">
+                            City *
+                        </label>
+                        <input id="ship-city" type="text" formControlName="city" placeholder="Giza"
+                            class="block w-full rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm" />
+                        @if (shippingForm.controls.city.touched && shippingForm.controls.city.invalid) {
+                        <p class="mt-1 text-xs font-bold text-brand-danger">City is required.</p>
+                        }
+                    </div>
+
+                    <div class="min-w-0">
+                        <label for="ship-phone" class="mb-1.5 block text-xs font-bold text-content-main">
+                            Phone Number *
+                        </label>
+                        <input id="ship-phone" type="tel" formControlName="phone" placeholder="01010700700"
+                            class="block w-full rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm" />
+                        @if (shippingForm.controls.phone.touched && shippingForm.controls.phone.invalid) {
+                        <p class="mt-1 text-xs font-bold text-brand-danger">
+                            Enter a valid 11-digit phone number.
+                        </p>
+                        }
+                    </div>
+                </div>
+
+                <div class="min-w-0">
+                    <label for="ship-details" class="mb-1.5 block text-xs font-bold text-content-main">
+                        Address Details *
+                    </label>
+                    <textarea id="ship-details" rows="3" formControlName="details"
+                        placeholder="Street, building, apartment, landmark..."
+                        class="block w-full max-w-full [overflow-wrap:anywhere] rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm"></textarea>
+                    @if (shippingForm.controls.details.touched && shippingForm.controls.details.invalid) {
+                    <p class="mt-1 text-xs font-bold text-brand-danger">
+                        Enter shipping address details (at least 5 characters).
+                    </p>
+                    }
+                </div>
+
+                <!-- Payment Method -->
+                <div class="pt-2">
+                    <span class="mb-2 block text-xs font-bold text-content-main">Payment Method</span>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <button type="button" (click)="onSelectPaymentMethod('cash')"
+                            class="flex cursor-pointer items-center gap-3 rounded-2xl border p-3.5 text-left transition-all focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none"
+                            [class.border-brand-secondary]="paymentMethod() === 'cash'"
+                            [class.bg-brand-secondary-soft]="paymentMethod() === 'cash'"
+                            [class.border-line-subtle]="paymentMethod() !== 'cash'">
+                            <i class="fas fa-money-bill-wave text-sm text-brand-secondary"></i>
+                            <div>
+                                <p class="text-xs font-extrabold text-content-main">Cash on Delivery</p>
+                                <p class="text-[11px] text-content-muted">Pay when order arrives</p>
+                            </div>
+                        </button>
+
+                        <button type="button" (click)="onSelectPaymentMethod('card')"
+                            class="flex cursor-pointer items-center gap-3 rounded-2xl border p-3.5 text-left transition-all focus:ring-2 focus:ring-brand-secondary/25 focus:outline-none"
+                            [class.border-brand-secondary]="paymentMethod() === 'card'"
+                            [class.bg-brand-secondary-soft]="paymentMethod() === 'card'"
+                            [class.border-line-subtle]="paymentMethod() !== 'card'">
+                            <i class="far fa-credit-card text-sm text-brand-secondary"></i>
+                            <div>
+                                <p class="text-xs font-extrabold text-content-main">Credit / Debit Card</p>
+                                <p class="text-[11px] text-content-muted">Online checkout session</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" [disabled]="isSubmitting()" style="background: var(--grad-primary);"
+                    class="mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm">
+                    @if (isSubmitting()) {
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Processing Order...</span>
+                    } @else {
+                    <i class="fas fa-check-circle"></i>
+                    <span>
+                        {{ paymentMethod() === 'cash' ? 'Place Cash Order' : 'Continue to Card Payment' }}
+                    </span>
+                    }
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Column: Order Summary -->
+        <aside
+            class="h-fit min-w-0 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-2xs lg:col-span-5 sm:p-6">
+            <h2 class="text-base font-extrabold text-content-main">Order Summary</h2>
+
+            @if (activeAddress(); as currentAddr) {
+            <div class="mt-3 rounded-2xl border border-line-subtle bg-surface-muted/40 p-3 text-xs">
+                <p class="font-extrabold text-content-main">
+                    Delivering to: {{ currentAddr.name }} ({{ currentAddr.city }})
+                </p>
+                <p class="mt-0.5 text-[11px] text-content-muted [overflow-wrap:anywhere]">
+                    {{ currentAddr.details }}
+                </p>
+            </div>
+            }
+
+            <div class="mt-4 space-y-3 border-b border-line-subtle pb-4 text-xs">
+                <div class="flex items-center justify-between text-content-muted">
+                    <span>Items Count</span>
+                    <span class="font-extrabold text-content-main">{{ cartSummary().itemsCount }}</span>
+                </div>
+
+                <div class="flex items-center justify-between text-content-muted">
+                    <span>Subtotal</span>
+                    <span class="font-extrabold text-content-main">
+                        {{ cartSummary().totalCartPrice | currency: 'EGP ' }}
+                    </span>
+                </div>
+
+                @if (cartSummary().totalAfterDiscount !== null && cartSummary().totalAfterDiscount! > 0) {
+                <div class="flex items-center justify-between text-emerald-600">
+                    <span>After Discount</span>
+                    <span class="font-extrabold">
+                        {{ cartSummary().totalAfterDiscount | currency: 'EGP ' }}
+                    </span>
+                </div>
+                }
+
+                <div class="flex items-center justify-between text-content-muted">
+                    <span>Shipping</span>
+                    @if (cartSummary().isFreeShipping) {
+                    <span class="font-extrabold text-emerald-600">Free</span>
+                    } @else {
+                    <span class="font-extrabold text-content-main">
+                        {{ cartSummary().shippingFee | currency: 'EGP ' }}
+                    </span>
+                    }
+                </div>
+
+                @if (cartSummary().effectiveTotal > 0 && !cartSummary().isFreeShipping) {
+                <p
+                    class="rounded-xl border border-brand-accent/25 bg-brand-accent-soft px-3 py-2 text-[11px] font-bold text-brand-accent">
+                    Add {{ (cartSummary().freeShippingThreshold - cartSummary().effectiveTotal) | currency: 'EGP ' }}
+                    more for free
+                    shipping on orders 500 EGP+.
+                </p>
+                }
+            </div>
+
+            <div class="mt-4 flex items-baseline justify-between">
+                <span class="text-sm font-extrabold text-content-main">Total</span>
+                <span class="text-xl font-extrabold text-brand-primary">
+                    {{ cartSummary().finalTotal | currency: 'EGP ' }}
+                </span>
+            </div>
+        </aside>
+    </div>
+</section>

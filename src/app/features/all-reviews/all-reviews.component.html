@@ -1,0 +1,144 @@
+<section class="mx-auto w-full max-w-6xl overflow-x-clip px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-line-subtle pb-5">
+        <div class="min-w-0">
+            <span
+                class="inline-block rounded-full border border-brand-secondary/25 bg-brand-secondary-soft px-3 py-0.5 text-[11px] font-bold text-brand-secondary">
+                Community Voices
+            </span>
+            <h1 class="mt-1.5 text-xl font-extrabold text-content-main sm:text-2xl">
+                All Store Reviews ({{ totalResults() }})
+            </h1>
+            <p class="mt-1 text-xs font-medium text-content-muted sm:text-sm">
+                Browse verified reviews across Cartify products or click Inspect to load a single review by ID.
+            </p>
+        </div>
+
+        @if (totalPages() > 1) {
+        <div class="flex shrink-0 items-center gap-2 text-xs font-bold">
+            <button type="button" (click)="loadPage(page() - 1)" [disabled]="page() <= 1 || isLoading()"
+                class="cursor-pointer rounded-xl border border-line-subtle bg-surface-card px-3.5 py-2 text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:ring-2 focus:ring-brand-primary/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40">
+                Prev
+            </button>
+            <span class="px-1 text-content-muted">
+                Page {{ page() }} / {{ totalPages() }}
+            </span>
+            <button type="button" (click)="loadPage(page() + 1)" [disabled]="page() >= totalPages() || isLoading()"
+                style="background: var(--grad-primary);"
+                class="cursor-pointer rounded-xl px-3.5 py-2 text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40">
+                Next
+            </button>
+        </div>
+        }
+    </div>
+
+    <!-- Inspected Single Review Card (from GET /api/v1/reviews/:reviewId) -->
+    @if (selectedReview(); as single) {
+    <div
+        class="animate-cartify-in mb-6 w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-brand-primary/35 bg-brand-primary-soft p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0 flex-1">
+                <span
+                    class="inline-block rounded-full bg-brand-primary px-2.5 py-0.5 text-[10px] font-extrabold text-brand-on-primary">
+                    Review Details
+                </span>
+                <h2 class="mt-1.5 truncate text-sm font-extrabold text-content-main">
+                    {{ authorName(single.user) }} — {{ single.rating }} / 5 ★
+                </h2>
+                <p class="truncate text-[11px] font-medium text-content-soft">
+                    ID: {{ single._id }} · {{ single.createdAt | date: 'medium' }}
+                </p>
+            </div>
+
+            <button type="button" (click)="closeSelectedReview()" aria-label="Close review details"
+                class="shrink-0 cursor-pointer rounded-xl border border-brand-danger/30 bg-brand-danger-soft px-2.5 py-1 text-xs font-bold text-brand-danger transition-colors hover:bg-brand-danger hover:text-white focus:outline-none">
+                Close
+            </button>
+        </div>
+
+        <p
+            class="mt-3 whitespace-pre-line break-words [overflow-wrap:anywhere] text-xs leading-relaxed text-content-main sm:text-sm">
+            {{ single.review }}
+        </p>
+
+        <div class="mt-3 flex justify-end">
+            <a [routerLink]="['/product-details', single.product]"
+                class="text-xs font-extrabold text-brand-primary hover:text-brand-primary-hover hover:underline">
+                Go to Product Page →
+            </a>
+        </div>
+    </div>
+    }
+
+    <!-- Reviews Grid -->
+    @if (isLoading() && allReviews().length === 0) {
+    <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+        <div class="h-36 animate-pulse rounded-2xl border border-line-subtle bg-surface-muted p-4"></div>
+        }
+    </div>
+    } @else if (allReviews().length > 0) {
+    <div class="grid w-full max-w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        @for (rev of allReviews(); track rev._id) {
+        <article
+            class="animate-cartify-in flex w-full min-w-0 max-w-full flex-col justify-between overflow-hidden rounded-2xl border border-line-subtle bg-surface-card p-4 shadow-2xs transition-all hover:border-brand-primary/40 hover:shadow-sm">
+            <div class="w-full min-w-0">
+                <div class="mb-2.5 flex items-start justify-between gap-2">
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-xs font-extrabold text-content-main sm:text-sm">
+                            {{ authorName(rev.user) }}
+                        </p>
+                        <span class="block truncate text-[10px] font-medium text-content-soft">
+                            {{ rev.createdAt | date: 'mediumDate' }}
+                        </span>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-0.5 text-xs text-brand-accent">
+                        @for (star of [1, 2, 3, 4, 5]; track star) {
+                        <i class="fas fa-star" [class.text-content-soft]="star > rev.rating"></i>
+                        }
+                        <span class="ml-1 font-extrabold text-content-main">{{ rev.rating }}</span>
+                    </div>
+                </div>
+
+                <p
+                    class="whitespace-pre-line break-words [overflow-wrap:anywhere] text-xs leading-relaxed text-content-muted">
+                    {{ displayReviewText(rev) }}
+                </p>
+
+                @if (isLongReview(rev.review)) {
+                <button type="button" (click)="toggleExpand(rev._id)"
+                    class="mt-1.5 cursor-pointer text-[11px] font-extrabold text-brand-primary hover:text-brand-primary-hover hover:underline">
+                    {{ isExpanded(rev._id) ? 'Show less' : 'Read more' }}
+                </button>
+                }
+            </div>
+
+            <div class="mt-4 flex items-center justify-between border-t border-line-subtle pt-2.5 text-xs font-bold">
+                <button type="button" (click)="inspectReview(rev._id)" [disabled]="inspectingId() === rev._id"
+                    class="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-brand-secondary-soft px-2.5 py-1 text-brand-secondary transition-colors hover:bg-brand-secondary hover:text-white disabled:opacity-50">
+                    @if (inspectingId() === rev._id) {
+                    <i class="fas fa-spinner fa-spin text-[10px]"></i>
+                    <span>Loading...</span>
+                    } @else {
+                    <i class="fas fa-eye text-[10px]"></i>
+                    <span>Inspect</span>
+                    }
+                </button>
+
+                <a [routerLink]="['/product-details', rev.product]"
+                    class="inline-flex items-center gap-1 text-brand-primary transition-colors hover:text-brand-primary-hover">
+                    <span>Product</span>
+                    <i class="fas fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+        </article>
+        }
+    </div>
+    } @else {
+    <p
+        class="rounded-2xl border border-line-subtle bg-surface-muted p-6 text-center text-xs font-medium text-content-muted">
+        No store reviews found yet.
+    </p>
+    }
+</section>

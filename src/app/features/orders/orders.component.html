@@ -1,0 +1,198 @@
+<section class="mx-auto w-full max-w-6xl overflow-x-clip px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-line-subtle pb-4">
+        <div class="min-w-0">
+            <span
+                class="inline-block rounded-full border border-brand-accent/30 bg-brand-accent-soft px-3 py-0.5 text-[11px] font-bold text-brand-accent">
+                Order History
+            </span>
+            <h1 class="mt-1 text-xl font-extrabold text-content-main sm:text-2xl">
+                My Orders
+            </h1>
+            <p class="mt-0.5 text-xs font-medium text-content-muted">
+                {{ totalOrdersCount() }} {{ totalOrdersCount() === 1 ? 'order' : 'orders' }} total ·
+                {{ paidOrdersCount() }} paid
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+            <button type="button" (click)="loadOrders()" [disabled]="isLoading()"
+                class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-line-subtle bg-surface-card px-3.5 py-2 text-xs font-bold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                <i class="fas fa-rotate-right text-[11px]" [class.fa-spin]="isLoading()"></i>
+                <span>Refresh</span>
+            </button>
+
+            <a routerLink="/shop" style="background: var(--grad-primary);"
+                class="inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none">
+                <i class="fas fa-bag-shopping text-[11px]"></i>
+                <span>Continue Shopping</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    @if (!isLoading() && orders().length > 0) {
+    <div class="mb-6 flex flex-wrap gap-2">
+        <button type="button" (click)="setFilter('all')"
+            class="cursor-pointer rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition-all focus:ring-2 focus:ring-brand-secondary/30 focus:outline-none"
+            [class.bg-brand-secondary]="paymentFilter() === 'all'" [class.text-white]="paymentFilter() === 'all'"
+            [class.bg-surface-card]="paymentFilter() !== 'all'" [class.text-content-main]="paymentFilter() !== 'all'"
+            [class.border]="paymentFilter() !== 'all'" [class.border-line-subtle]="paymentFilter() !== 'all'">
+            All ({{ orders().length }})
+        </button>
+
+        <button type="button" (click)="setFilter('paid')"
+            class="cursor-pointer rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition-all focus:ring-2 focus:ring-brand-secondary/30 focus:outline-none"
+            [class.bg-brand-secondary]="paymentFilter() === 'paid'" [class.text-white]="paymentFilter() === 'paid'"
+            [class.bg-surface-card]="paymentFilter() !== 'paid'" [class.text-content-main]="paymentFilter() !== 'paid'"
+            [class.border]="paymentFilter() !== 'paid'" [class.border-line-subtle]="paymentFilter() !== 'paid'">
+            Paid
+        </button>
+
+        <button type="button" (click)="setFilter('unpaid')"
+            class="cursor-pointer rounded-xl px-3.5 py-1.5 text-xs font-extrabold transition-all focus:ring-2 focus:ring-brand-secondary/30 focus:outline-none"
+            [class.bg-brand-secondary]="paymentFilter() === 'unpaid'" [class.text-white]="paymentFilter() === 'unpaid'"
+            [class.bg-surface-card]="paymentFilter() !== 'unpaid'"
+            [class.text-content-main]="paymentFilter() !== 'unpaid'" [class.border]="paymentFilter() !== 'unpaid'"
+            [class.border-line-subtle]="paymentFilter() !== 'unpaid'">
+            Unpaid
+        </button>
+    </div>
+    }
+
+    <!-- Loading Skeletons -->
+    @if (isLoading()) {
+    <div class="space-y-4">
+        @for (n of [1, 2, 3]; track n) {
+        <div class="h-44 animate-pulse rounded-2xl border border-line-subtle bg-surface-card p-5"></div>
+        }
+    </div>
+    } @else if (filteredOrders().length === 0) {
+    <div
+        class="mx-auto flex max-w-md flex-col items-center rounded-3xl border border-line-subtle bg-surface-card px-6 py-12 text-center shadow-2xs">
+        <div
+            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-primary-soft text-xl text-brand-primary">
+            <i class="fas fa-box-open"></i>
+        </div>
+        <h2 class="mt-4 text-base font-extrabold text-content-main">
+            {{ paymentFilter() === 'all' ? 'No orders yet' : 'No matching orders' }}
+        </h2>
+        <p class="mt-1 text-xs leading-relaxed text-content-muted">
+            {{
+            paymentFilter() === 'all'
+            ? 'Once you complete checkout, your orders and delivery updates appear here.'
+            : 'Switch the payment filter above to view orders in other statuses.'
+            }}
+        </p>
+        @if (paymentFilter() === 'all') {
+        <a routerLink="/shop" style="background: var(--grad-primary);"
+            class="mt-5 inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none">
+            <span>Browse Products</span>
+            <i class="fas fa-arrow-right text-[11px]"></i>
+        </a>
+        }
+    </div>
+    } @else {
+    <!-- Orders List -->
+    <div class="space-y-5">
+        @for (order of filteredOrders(); track order._id || order.id) {
+        <article
+            class="min-w-0 overflow-hidden rounded-2xl border border-line-subtle bg-surface-card p-5 shadow-2xs transition-colors hover:border-brand-primary/40 sm:p-6">
+            <!-- Top Bar -->
+            <div class="flex flex-wrap items-start justify-between gap-4 border-b border-line-subtle pb-4">
+                <div class="min-w-0 space-y-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-extrabold text-content-main">
+                            Order #{{ order.id ?? order._id }}
+                        </span>
+                        <span
+                            class="rounded-full bg-brand-secondary-soft px-2.5 py-0.5 text-[11px] font-bold uppercase text-brand-secondary">
+                            {{ order.paymentMethodType || 'cash' }}
+                        </span>
+                    </div>
+                    @if (order.createdAt) {
+                    <p class="text-[11px] font-medium text-content-muted">
+                        Placed on {{ order.createdAt | date: 'mediumDate' }}
+                    </p>
+                    }
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="rounded-full px-3 py-1 text-[11px] font-extrabold"
+                        [class.bg-emerald-500/15]="order.isPaid" [class.text-emerald-600]="order.isPaid"
+                        [class.bg-brand-accent-soft]="!order.isPaid" [class.text-brand-accent]="!order.isPaid">
+                        {{ order.isPaid ? 'Paid' : 'Unpaid' }}
+                    </span>
+
+                    <span class="rounded-full px-3 py-1 text-[11px] font-extrabold"
+                        [class.bg-brand-primary-soft]="order.isDelivered" [class.text-brand-primary]="order.isDelivered"
+                        [class.bg-surface-muted]="!order.isDelivered" [class.text-content-muted]="!order.isDelivered">
+                        {{ order.isDelivered ? 'Delivered' : 'In Progress' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Items Preview -->
+            @if (order.cartItems?.length) {
+            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @for (item of order.cartItems; track item._id || item.product?._id) {
+                <div
+                    class="flex min-w-0 items-center gap-3 rounded-xl border border-line-subtle/70 bg-surface-muted/40 p-2.5">
+                    @if (item.product?.imageCover) {
+                    <img [src]="item.product.imageCover" [alt]="item.product.title || 'Ordered item'" loading="lazy"
+                        class="h-12 w-12 shrink-0 rounded-lg border border-line-subtle object-cover" />
+                    }
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-xs font-extrabold text-content-main [overflow-wrap:anywhere]">
+                            {{ item.product?.title || 'Product' }}
+                        </p>
+                        <p class="mt-0.5 text-[11px] font-medium text-content-muted">
+                            Qty: {{ item.count }} × {{ item.price | currency: 'EGP ' }}
+                        </p>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- Footer: Shipping, Reorder & Total -->
+            <div
+                class="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-line-subtle pt-4 text-xs">
+                <div class="min-w-0 text-content-muted [overflow-wrap:anywhere]">
+                    @if (order.shippingAddress) {
+                    <span>
+                        <strong class="text-content-main">Ship to:</strong>
+                        {{ order.shippingAddress.city }} — {{ order.shippingAddress.details }}
+                        @if (order.shippingAddress.phone) {
+                        · {{ order.shippingAddress.phone }}
+                        }
+                    </span>
+                    }
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="text-right">
+                        <span class="text-[11px] font-bold text-content-muted">Total Paid: </span>
+                        <span class="text-sm font-extrabold text-brand-primary">
+                            {{ (order.totalOrderPrice ?? 0) | currency: 'EGP ' }}
+                        </span>
+                    </div>
+
+                    <button type="button" (click)="onReorder(order)"
+                        [disabled]="reorderingOrderId() === (order._id ?? order.id)"
+                        class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-brand-secondary/35 bg-brand-secondary-soft px-3.5 py-2 text-xs font-extrabold text-brand-secondary transition-colors hover:bg-brand-secondary hover:text-white focus:ring-2 focus:ring-brand-secondary/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                        @if (reorderingOrderId() === (order._id ?? order.id)) {
+                        <i class="fas fa-spinner fa-spin text-[11px]"></i>
+                        <span>Adding...</span>
+                        } @else {
+                        <i class="fas fa-rotate-left text-[11px]"></i>
+                        <span>Reorder</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </article>
+        }
+    </div>
+    }
+</section>

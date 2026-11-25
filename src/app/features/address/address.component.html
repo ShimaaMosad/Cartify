@@ -1,0 +1,202 @@
+<section class="mx-auto min-h-[calc(100vh-5rem)] max-w-6xl overflow-x-clip px-4 py-10 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+            <span
+                class="inline-flex items-center gap-1.5 rounded-full border border-brand-accent/30 bg-brand-accent-soft px-3.5 py-1 text-[11px] font-extrabold text-brand-accent">
+                <i class="fas fa-location-dot text-[10px]"></i>
+                Delivery Destinations
+            </span>
+            <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-content-main sm:text-3xl">
+                My Addresses
+            </h1>
+            <p class="mt-1 text-xs font-medium text-content-muted sm:text-sm">
+                Choose a default shipping address for checkout orders or add a new destination.
+            </p>
+        </div>
+
+        @if (defaultAddress(); as activeAddr) {
+        <a routerLink="/check-out" [queryParams]="{ addressId: activeAddr._id }"
+            style="background: var(--grad-primary);"
+            class="inline-flex w-fit items-center gap-2 rounded-2xl px-4 py-2.5 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none">
+            <i class="fas fa-bag-shopping text-[11px]"></i>
+            <span>Checkout with {{ activeAddr.name }}</span>
+        </a>
+        }
+    </div>
+
+    <!-- Active Default Shipping Summary Banner -->
+    @if (defaultAddress(); as activeAddr) {
+    <div
+        class="mb-8 flex flex-col justify-between gap-3 rounded-3xl border border-brand-primary/35 bg-brand-primary-soft p-4 sm:flex-row sm:items-center sm:px-6">
+        <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+                <span
+                    class="inline-flex items-center gap-1 rounded-full bg-brand-primary px-2.5 py-0.5 text-[10px] font-extrabold text-brand-on-primary">
+                    <i class="fas fa-check text-[9px]"></i>
+                    Default Shipping Address
+                </span>
+                <span class="text-sm font-extrabold text-content-main [overflow-wrap:anywhere]">
+                    {{ activeAddr.name }} — {{ activeAddr.city }}
+                </span>
+            </div>
+            <p class="mt-1 text-xs text-content-muted [overflow-wrap:anywhere]">
+                {{ activeAddr.details }} • <span class="font-bold text-content-main">{{ activeAddr.phone }}</span>
+            </p>
+        </div>
+    </div>
+    }
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <!-- Add Address Form -->
+        <form [formGroup]="addressForm" (ngSubmit)="onAddAddress()"
+            class="h-fit min-w-0 space-y-4 rounded-3xl border border-line-subtle bg-surface-card p-5 shadow-2xs lg:col-span-5 sm:p-6">
+            <h2 class="text-base font-extrabold text-content-main">Add New Address</h2>
+
+            <div class="min-w-0">
+                <label for="addr-name" class="mb-1.5 block text-xs font-bold text-content-main">
+                    Address Label *
+                </label>
+                <input id="addr-name" type="text" formControlName="name" placeholder="e.g. Home, Office"
+                    class="block w-full rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm" />
+                @if (addressForm.controls.name.touched && addressForm.controls.name.invalid) {
+                <p class="mt-1 text-xs font-bold text-brand-danger">
+                    Enter a label (at least 2 characters).
+                </p>
+                }
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="min-w-0">
+                    <label for="addr-city" class="mb-1.5 block text-xs font-bold text-content-main">
+                        City *
+                    </label>
+                    <input id="addr-city" type="text" formControlName="city" placeholder="e.g. Giza, Cairo"
+                        class="block w-full rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm" />
+                    @if (addressForm.controls.city.touched && addressForm.controls.city.invalid) {
+                    <p class="mt-1 text-xs font-bold text-brand-danger">City is required.</p>
+                    }
+                </div>
+
+                <div class="min-w-0">
+                    <label for="addr-phone" class="mb-1.5 block text-xs font-bold text-content-main">
+                        Phone Number *
+                    </label>
+                    <input id="addr-phone" type="tel" formControlName="phone" placeholder="01010700700"
+                        class="block w-full rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm" />
+                    @if (addressForm.controls.phone.touched && addressForm.controls.phone.invalid) {
+                    <p class="mt-1 text-xs font-bold text-brand-danger">
+                        Enter a valid 11-digit Egyptian mobile number.
+                    </p>
+                    }
+                </div>
+            </div>
+
+            <div class="min-w-0">
+                <label for="addr-details" class="mb-1.5 block text-xs font-bold text-content-main">
+                    Street / Building Details *
+                </label>
+                <textarea id="addr-details" rows="3" formControlName="details"
+                    placeholder="Street name, building number, floor, apartment..."
+                    class="block w-full max-w-full [overflow-wrap:anywhere] rounded-2xl border border-line-subtle bg-surface-muted/40 px-4 py-2.5 text-xs font-medium text-content-main placeholder:text-content-soft transition-all focus:border-brand-primary focus:bg-surface-card focus:ring-2 focus:ring-brand-primary/25 focus:outline-none sm:text-sm"></textarea>
+                @if (addressForm.controls.details.touched && addressForm.controls.details.invalid) {
+                <p class="mt-1 text-xs font-bold text-brand-danger">
+                    Please enter address details (at least 5 characters).
+                </p>
+                }
+            </div>
+
+            <button type="submit" [disabled]="isSubmitting()" style="background: var(--grad-primary);"
+                class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl px-5 py-3 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-brand-primary/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm">
+                @if (isSubmitting()) {
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Saving Address...</span>
+                } @else {
+                <i class="fas fa-plus"></i>
+                <span>Save Address</span>
+                }
+            </button>
+        </form>
+
+        <!-- Saved Addresses List -->
+        <div class="min-w-0 space-y-4 lg:col-span-7">
+            <div class="flex items-center justify-between gap-2">
+                <h2 class="text-base font-extrabold text-content-main">
+                    Saved Addresses ({{ addresses().length }})
+                </h2>
+            </div>
+
+            @if (isLoading() && addresses().length === 0) {
+            <div class="space-y-3">
+                @for (n of [1, 2]; track n) {
+                <div class="h-28 animate-pulse rounded-2xl border border-line-subtle bg-surface-card p-4"></div>
+                }
+            </div>
+            } @else if (addresses().length === 0) {
+            <div class="rounded-3xl border border-line-subtle bg-surface-card p-8 text-center shadow-2xs">
+                <p class="text-xs font-semibold text-content-muted sm:text-sm">
+                    No saved addresses yet. Add your first delivery address using the form.
+                </p>
+            </div>
+            } @else {
+            <div class="space-y-3">
+                @for (addr of addresses(); track addr._id) {
+                @let isDefault = isDefaultAddress(addr);
+
+                <article
+                    class="flex min-w-0 flex-col justify-between gap-4 overflow-hidden rounded-2xl border bg-surface-card p-4 shadow-2xs transition-colors sm:flex-row sm:items-start sm:p-5"
+                    [class.border-brand-primary]="isDefault" [class.border-line-subtle]="!isDefault">
+                    <div class="min-w-0 space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-sm font-extrabold text-content-main [overflow-wrap:anywhere]">
+                                {{ addr.name }}
+                            </span>
+                            <span
+                                class="rounded-full bg-brand-secondary-soft px-2.5 py-0.5 text-[11px] font-bold text-brand-secondary">
+                                {{ addr.city }}
+                            </span>
+                            @if (isDefault) {
+                            <span
+                                class="rounded-full bg-brand-primary-soft px-2.5 py-0.5 text-[10px] font-extrabold text-brand-primary">
+                                Default
+                            </span>
+                            }
+                        </div>
+
+                        <p class="text-xs leading-relaxed text-content-muted [overflow-wrap:anywhere]">
+                            {{ addr.details }}
+                        </p>
+
+                        <p class="pt-1 text-xs font-bold text-content-main">
+                            <i class="fas fa-phone mr-1.5 text-[11px] text-brand-secondary"></i>
+                            {{ addr.phone }}
+                        </p>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-2 self-end sm:self-start">
+                        @if (!isDefault) {
+                        <button type="button" (click)="onSelectDefaultAddress(addr)"
+                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-line-subtle bg-surface-card px-3 py-2 text-xs font-extrabold text-content-main transition-colors hover:border-brand-secondary hover:text-brand-secondary focus:ring-2 focus:ring-brand-secondary/30 focus:outline-none">
+                            <i class="far fa-circle-check text-[11px] text-brand-secondary"></i>
+                            <span>Set Default</span>
+                        </button>
+                        }
+
+                        <button type="button" (click)="onDeleteAddress(addr)" [disabled]="deletingId() === addr._id"
+                            aria-label="Delete address" title="Delete address"
+                            class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-brand-danger/30 bg-brand-danger-soft px-3 py-2 text-xs font-extrabold text-brand-danger transition-colors hover:bg-brand-danger hover:text-white focus:ring-2 focus:ring-brand-danger/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60">
+                            @if (deletingId() === addr._id) {
+                            <i class="fas fa-spinner fa-spin text-[11px]"></i>
+                            } @else {
+                            <i class="fas fa-trash text-[11px]"></i>
+                            }
+                            <span class="hidden sm:inline">Delete</span>
+                        </button>
+                    </div>
+                </article>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</section>
