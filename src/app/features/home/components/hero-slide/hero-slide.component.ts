@@ -1,4 +1,15 @@
-import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
+
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -27,7 +38,11 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
   private readonly productsService = inject(ProductsService);
   private readonly catagoriesService = inject(CatagoriesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
+  private get isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
   private timerId: number | null = null;
   private touchStartX: number | null = null;
 
@@ -47,9 +62,7 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadRealStoreData();
-    this.startAutoPlay();
   }
-
   ngOnDestroy(): void {
     this.stopAutoPlay();
   }
@@ -99,9 +112,13 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
       }
     }
   }
-
   private startAutoPlay(): void {
     this.stopAutoPlay();
+
+    if (!this.isBrowser || this.slides().length <= 1) {
+      return;
+    }
+
     this.timerId = window.setInterval(() => {
       if (!this.isPaused()) {
         this.nextSlide();
@@ -111,7 +128,10 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
 
   private stopAutoPlay(): void {
     if (this.timerId !== null) {
-      window.clearInterval(this.timerId);
+      if (this.isBrowser) {
+        window.clearInterval(this.timerId);
+      }
+
       this.timerId = null;
     }
   }
@@ -243,6 +263,7 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
       .subscribe((builtSlides) => {
         this.slides.set(builtSlides);
         this.activeIndex.set(0);
+        this.startAutoPlay();
       });
   }
 }
