@@ -1,10 +1,10 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { WishlistProduct } from '../../core/models/wishlist.interface';
 import { CartService } from '../../core/services/cart/cart.service';
 import { WishlistService } from '../../core/services/wishlist/wishlist.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -15,7 +15,7 @@ import { WishlistService } from '../../core/services/wishlist/wishlist.service';
 export class WishlistComponent implements OnInit {
   private readonly wishlistService = inject(WishlistService);
   private readonly cartService = inject(CartService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly items = this.wishlistService.wishlistItems;

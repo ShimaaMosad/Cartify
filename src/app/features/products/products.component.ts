@@ -1,10 +1,10 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { ProductsService } from '../../core/services/products/products.service';
 import { WishlistService } from '../../core/services/wishlist/wishlist.service';
 import { Product } from '../../core/models/products-data.interface';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-products',
@@ -15,7 +15,7 @@ import { Product } from '../../core/models/products-data.interface';
 export class ProductsComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
   readonly wishlistService = inject(WishlistService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

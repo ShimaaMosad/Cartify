@@ -8,9 +8,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { SignupRequest } from '../../core/models/auth.interface';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -30,7 +30,7 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
 
   readonly showPassword = signal<boolean>(false);
   readonly showRePassword = signal<boolean>(false);

@@ -1,0 +1,26 @@
+<div class="fixed right-4 top-4 z-[9999] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-3 sm:right-5 sm:top-5"
+    aria-live="polite" aria-atomic="false">
+    @for (toast of toasts(); track toast.id) {
+    <div class="flex items-start gap-3 rounded-xl border bg-white p-4 shadow-lg"
+        [class.border-green-200]="toast.type === 'success'" [class.border-red-200]="toast.type === 'error'"
+        [class.border-yellow-200]="toast.type === 'warning'" [class.border-blue-200]="toast.type === 'info'"
+        [attr.role]="toast.type === 'error' ? 'alert' : 'status'">
+        <div class="min-w-0 flex-1">
+            <h3 class="text-sm font-semibold" [class.text-green-700]="toast.type === 'success'"
+                [class.text-red-700]="toast.type === 'error'" [class.text-yellow-700]="toast.type === 'warning'"
+                [class.text-blue-700]="toast.type === 'info'">
+                {{ toast.title }}
+            </h3>
+
+            <p class="mt-1 text-sm text-gray-600">
+                {{ toast.message }}
+            </p>
+        </div>
+
+        <button type="button" class="shrink-0 text-xl leading-none text-gray-400 transition hover:text-gray-700"
+            aria-label="Close notification" (click)="removeToast(toast.id)">
+            &times;
+        </button>
+    </div>
+    }
+</div>

@@ -2,9 +2,9 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { CartLineItem } from '../../core/models/cart.interface';
 import { CartService } from '../../core/services/cart/cart.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-cart',
@@ -14,7 +14,7 @@ import { CartService } from '../../core/services/cart/cart.service';
 })
 export class CartComponent implements OnInit {
   private readonly cartService = inject(CartService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly items = this.cartService.cartItems;

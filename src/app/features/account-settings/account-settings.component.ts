@@ -2,8 +2,8 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-profile',
@@ -14,7 +14,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 export class ProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   readonly authService = inject(AuthService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isUpdatingProfile = signal<boolean>(false);

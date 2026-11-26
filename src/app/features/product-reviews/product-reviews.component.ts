@@ -3,10 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
 import { CreateReviewRequest, Review } from '../../core/models/reviews.interface';
 import { getReviewAuthorId, ReviewsService } from '../../core/services/reviews/reviews.service';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-product-reviews',
@@ -19,7 +19,7 @@ export class ProductReviewsComponent {
 
   private readonly reviewsService = inject(ReviewsService);
   private readonly authService = inject(AuthService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 

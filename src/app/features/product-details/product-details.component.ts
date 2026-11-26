@@ -5,7 +5,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { distinctUntilChanged, map } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { CartService } from '../../core/services/cart/cart.service';
@@ -15,6 +14,7 @@ import {
   ReviewsService,
 } from '../../core/services/reviews/reviews.service';
 import { Review } from '../../core/models/reviews.interface';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 export interface ProductDetailItem {
   _id: string;
@@ -49,7 +49,7 @@ export class ProductDetailsComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
   readonly reviewsService = inject(ReviewsService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly apiBase = `${environment.apiUrl}/api/v1`;

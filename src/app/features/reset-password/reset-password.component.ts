@@ -8,8 +8,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 function newPasswordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPassword = group.get('newPassword')?.value;
@@ -29,7 +29,7 @@ export class ResetPasswordComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
 
   readonly showNewPassword = signal<boolean>(false);
   readonly showConfirmPassword = signal<boolean>(false);

@@ -2,9 +2,9 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { SigninRequest } from '../../core/models/auth.interface';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,7 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
 
   readonly showPassword = signal<boolean>(false);
   readonly isSubmitting = signal<boolean>(false);

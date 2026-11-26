@@ -4,10 +4,10 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
 import { Order } from '../../core/models/orders.interface';
 import { OrdersService } from '../../core/services/orders/orders.service';
 import { CartService } from '../../core/services/cart/cart.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 export type OrderPaymentFilter = 'all' | 'paid' | 'unpaid';
 
@@ -21,7 +21,7 @@ export class UserOrdersComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly orders = signal<Order[]>([]);

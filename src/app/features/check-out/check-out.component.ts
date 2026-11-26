@@ -4,11 +4,11 @@ import { CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
 import { Address } from '../../core/models/address.interface';
 import { CartService } from '../../core/services/cart/cart.service';
 import { AddressesService } from '../../core/services/address/address.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 const DEFAULT_ADDRESS_STORAGE_KEY = 'cartify_default_address_id';
 const FREE_SHIPPING_THRESHOLD = 500;
@@ -40,7 +40,7 @@ export class CheckoutComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly addressesService = inject(AddressesService);
   readonly cartService = inject(CartService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly apiBase = `${environment.apiUrl}/api/v1`;

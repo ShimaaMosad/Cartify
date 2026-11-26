@@ -2,9 +2,9 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { Address } from '../../core/models/address.interface';
 import { AddressesService } from '../../core/services/address/address.service';
+import { ToastService } from '../../core/services/toast/toast.service';
 
 const DEFAULT_ADDRESS_STORAGE_KEY = 'cartify_default_address_id';
 
@@ -17,7 +17,7 @@ const DEFAULT_ADDRESS_STORAGE_KEY = 'cartify_default_address_id';
 export class AddressesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly addressesService = inject(AddressesService);
-  private readonly toastr = inject(ToastrService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly addresses = this.addressesService.addresses;

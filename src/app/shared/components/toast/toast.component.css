@@ -1,0 +1,11 @@
+:host {
+  display: contents;
+}
+
+@media (max-width: 640px) {
+  :host > div {
+    right: 1rem;
+    top: 1rem;
+    width: calc(100% - 2rem);
+  }
+}
