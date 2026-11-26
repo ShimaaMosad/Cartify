@@ -17,6 +17,7 @@ import { errorInterceptor } from './core/interceptors/errors-interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+
     provideRouter(
       routes,
       withInMemoryScrolling({
