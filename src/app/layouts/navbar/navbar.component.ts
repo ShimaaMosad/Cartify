@@ -5,6 +5,7 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { ThemeService } from '../../core/services/theme/theme.service';
 import { WishlistService } from '../../core/services/wishlist/wishlist.service';
 import { CartService } from '../../core/services/cart/cart.service';
+import { SearchStateService } from '../../core/services/search/search.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,10 +16,11 @@ import { CartService } from '../../core/services/cart/cart.service';
 export class NavbarComponent {
   readonly themeService = inject(ThemeService);
   readonly wishlistService = inject(WishlistService);
+  readonly cartService = inject(CartService);
+  readonly searchState = inject(SearchStateService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  readonly cartService = inject(CartService);
 
   readonly isDrawerOpen = signal<boolean>(false);
   readonly isCategoriesPanelOpen = signal<boolean>(false);
@@ -63,20 +65,28 @@ export class NavbarComponent {
     this.isCategoriesPanelOpen.set(false);
   }
 
-  onSearch(query: string): void {
-    const trimmed = query.trim();
-    if (!trimmed) {
-      this.router.navigate(['/search']);
-      return;
-    }
+  onSearchFocus(query: string): void {
+    this.navigateToSearch(query, true);
+  }
 
-    this.router.navigate(['/search'], {
-      queryParams: { q: trimmed },
-    });
+  onSearchTyping(query: string): void {
+    this.navigateToSearch(query, true);
+  }
+
+  onSearch(query: string): void {
+    this.navigateToSearch(query, false);
+  }
+
+  onDrawerSearchFocus(query: string): void {
+    this.navigateToSearch(query, true);
+  }
+
+  onDrawerSearchTyping(query: string): void {
+    this.navigateToSearch(query, true);
   }
 
   onDrawerSearch(query: string): void {
-    this.onSearch(query);
+    this.navigateToSearch(query, false);
     this.closeDrawer();
   }
 
@@ -84,5 +94,25 @@ export class NavbarComponent {
     this.authService.clearSession();
     this.closeDrawer();
     this.router.navigate(['/login']);
+  }
+
+  private navigateToSearch(query: string, replaceUrl: boolean): void {
+    this.searchState.setQuery(query);
+    const trimmed = query.trim();
+    const isAlreadyOnSearch = this.router.url.startsWith('/search');
+
+    if (!isAlreadyOnSearch) {
+      this.router.navigate(['/search'], {
+        queryParams: trimmed ? { q: trimmed } : undefined,
+        replaceUrl,
+      });
+      return;
+    }
+
+    this.router.navigate(['/search'], {
+      queryParams: trimmed ? { q: trimmed } : { q: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 }

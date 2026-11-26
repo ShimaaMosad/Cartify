@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/home.component';
+import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
   {
@@ -11,30 +12,32 @@ export const routes: Routes = [
     path: 'brands',
     title: 'Cartify|Brands',
     loadComponent: () =>
-      import('../app/features/brands/brands.component').then((c) => c.BrandsComponent),
+      import('./features/brands/brands.component').then((c) => c.BrandsComponent),
   },
   {
     path: 'cart',
     title: 'Cartify|Cart',
-    loadComponent: () => import('../app/features/cart/cart.component').then((c) => c.CartComponent),
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/cart/cart.component').then((c) => c.CartComponent),
   },
   {
     path: 'catagories',
     title: 'Cartify|Catagories',
     loadComponent: () =>
-      import('../app/features/catagories/catagories.component').then((c) => c.CategoriesComponent),
+      import('./features/catagories/catagories.component').then((c) => c.CategoriesComponent),
   },
   {
     path: 'wishlist',
     title: 'Cartify|Wishlist',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('../app/features/wishlist/wishlist.component').then((c) => c.WishlistComponent),
+      import('./features/wishlist/wishlist.component').then((c) => c.WishlistComponent),
   },
   {
     path: 'sub-catagories',
     title: 'Cartify|SubCatagories',
     loadComponent: () =>
-      import('../app/features/sub-catagories/sub-catagories.component').then(
+      import('./features/sub-catagories/sub-catagories.component').then(
         (c) => c.SubCategoriesComponent,
       ),
   },
@@ -42,39 +45,42 @@ export const routes: Routes = [
     path: 'sub-catagories/:id',
     title: 'Cartify|SubCatagories',
     loadComponent: () =>
-      import('../app/features/sub-catagories/sub-catagories.component').then(
+      import('./features/sub-catagories/sub-catagories.component').then(
         (c) => c.SubCategoriesComponent,
       ),
   },
   {
     path: 'addresses',
     title: 'Cartify|Addresses',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('../app/features/address/address.component').then((c) => c.AddressesComponent),
+      import('./features/address/address.component').then((c) => c.AddressesComponent),
   },
   {
     path: 'check-out',
     title: 'Cartify|CheckOut',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('../app/features/check-out/check-out.component').then((c) => c.CheckoutComponent),
+      import('./features/check-out/check-out.component').then((c) => c.CheckoutComponent),
   },
   {
     path: 'orders',
     title: 'Cartify|Orders',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('../app/features/orders/orders.component').then((c) => c.UserOrdersComponent),
+      import('./features/orders/orders.component').then((c) => c.UserOrdersComponent),
   },
   {
     path: 'shop',
     title: 'Cartify|Products',
     loadComponent: () =>
-      import('../app/features/products/products.component').then((c) => c.ProductsComponent),
+      import('./features/products/products.component').then((c) => c.ProductsComponent),
   },
   {
     path: 'product-details/:id',
     title: 'Cartify|ProductDetails',
     loadComponent: () =>
-      import('../app/features/product-details/product-details.component').then(
+      import('./features/product-details/product-details.component').then(
         (c) => c.ProductDetailsComponent,
       ),
   },
@@ -86,43 +92,41 @@ export const routes: Routes = [
   },
   {
     path: 'search',
-    title: 'Cartify|Search ',
+    title: 'Cartify|Search',
     loadComponent: () =>
-      import('../app/features/search/search.component').then((c) => c.SearchComponent),
+      import('./features/search/search.component').then((c) => c.SearchComponent),
   },
   {
     path: 'settings',
     title: 'Cartify|Settings',
+    canActivate: [authGuard],
     loadComponent: () =>
-      import('../app/features/account-settings/account-settings.component').then(
+      import('./features/account-settings/account-settings.component').then(
         (c) => c.ProfileComponent,
       ),
   },
   {
     path: 'login',
     title: 'Cartify|Login',
-    loadComponent: () =>
-      import('../app/features/login/login.component').then((c) => c.LoginComponent),
+    loadComponent: () => import('./features/login/login.component').then((c) => c.LoginComponent),
   },
   {
     path: 'register',
     title: 'Cartify|Register',
     loadComponent: () =>
-      import('../app/features/register/register.component').then((c) => c.RegisterComponent),
+      import('./features/register/register.component').then((c) => c.RegisterComponent),
   },
   {
     path: 'verify-code',
     title: 'Cartify|Verifycode',
     loadComponent: () =>
-      import('../app/features/verify-code/verify-code.component').then(
-        (c) => c.VerifyCodeComponent,
-      ),
+      import('./features/verify-code/verify-code.component').then((c) => c.VerifyCodeComponent),
   },
   {
     path: 'reset-password',
     title: 'Cartify|ResetPassword',
     loadComponent: () =>
-      import('../app/features/reset-password/reset-password.component').then(
+      import('./features/reset-password/reset-password.component').then(
         (c) => c.ResetPasswordComponent,
       ),
   },
@@ -130,7 +134,7 @@ export const routes: Routes = [
     path: 'forget-password',
     title: 'Cartify|ForgetPassword',
     loadComponent: () =>
-      import('../app/features/forget-password/forget-password.component').then(
+      import('./features/forget-password/forget-password.component').then(
         (c) => c.ForgetPasswordComponent,
       ),
   },
@@ -138,6 +142,6 @@ export const routes: Routes = [
     path: '**',
     title: 'Cartify|NotFound',
     loadComponent: () =>
-      import('../app/features/not-found/not-found.component').then((c) => c.NotFoundComponent),
+      import('./features/not-found/not-found.component').then((c) => c.NotFoundComponent),
   },
 ];

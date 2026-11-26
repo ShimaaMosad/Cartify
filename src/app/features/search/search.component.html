@@ -1,1 +1,195 @@
-<p>search works!</p>
+<section class="mx-auto min-h-[calc(100vh-8rem)] max-w-7xl overflow-x-clip px-5 py-8 md:px-6">
+    <!-- Header -->
+    <div class="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+            <span
+                class="inline-flex items-center gap-1.5 rounded-full border border-brand-secondary/25 bg-brand-secondary-soft px-3.5 py-1 text-[11px] font-extrabold text-brand-secondary">
+                <i class="fas fa-magnifying-glass text-[10px]"></i>
+                <span>Catalog Search</span>
+            </span>
+            <h1 class="mt-2 text-2xl font-extrabold tracking-tight text-content-main md:text-3xl">
+                Search Products
+            </h1>
+            <p class="mt-1 text-xs font-medium text-content-muted sm:text-sm">
+                Find pieces by title, category, or brand across the Cartify storefront.
+            </p>
+        </div>
+
+        @if (!isLoading() && !errorMessage() && hasSearched()) {
+        <p class="text-xs font-semibold text-content-muted sm:text-sm">
+            Found <span class="font-extrabold text-content-main">{{ filteredProducts().length }}</span>
+            {{ filteredProducts().length === 1 ? 'result' : 'results' }}
+            @if (searchQuery().trim()) {
+            for <span class="font-extrabold text-brand-primary">"{{ searchQuery().trim() }}"</span>
+            }
+        </p>
+        }
+    </div>
+
+    <!-- Quick Filter Bar (Popular Tags & Clear) -->
+    <div class="mb-7 rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-2xs sm:px-5 sm:py-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="font-bold text-content-soft">Popular:</span>
+                @for (tag of popularTags; track tag) {
+                <button type="button" (click)="applyQuickTag(tag)"
+                    class="cursor-pointer rounded-full border px-3 py-1 font-bold transition-colors focus:outline-none"
+                    [class]="
+                        searchQuery().trim().toLowerCase() === tag.toLowerCase()
+                            ? 'border-brand-primary bg-brand-primary-soft text-brand-primary'
+                            : 'border-line-subtle bg-surface-muted/80 text-content-muted hover:border-brand-secondary hover:bg-brand-secondary-soft hover:text-brand-secondary'
+                    ">
+                    {{ tag }}
+                </button>
+                }
+            </div>
+
+            @if (searchQuery().trim()) {
+            <button type="button" (click)="clearSearch()"
+                class="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-line-subtle bg-surface-muted px-3 py-1.5 font-extrabold text-content-main transition-colors hover:border-brand-danger hover:bg-brand-danger-soft hover:text-brand-danger focus:outline-none">
+                <i class="fas fa-times text-[11px]"></i>
+                <span>Clear "{{ searchQuery().trim() }}"</span>
+            </button>
+            }
+        </div>
+    </div>
+
+    <!-- States: Loading / Error / Results -->
+    @if (isLoading()) {
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        @for (n of [1, 2, 3, 4, 5, 6, 7, 8]; track n) {
+        <div class="animate-pulse rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-2xs">
+            <div class="aspect-square w-full rounded-2xl bg-surface-muted"></div>
+            <div class="mt-3.5 h-3.5 w-24 rounded-full bg-surface-muted"></div>
+            <div class="mt-2 h-4 w-3/4 rounded-lg bg-surface-muted"></div>
+            <div class="mt-4 h-4 w-1/2 rounded-lg bg-surface-muted"></div>
+        </div>
+        }
+    </div>
+    } @else if (errorMessage()) {
+    <div class="rounded-3xl border border-brand-danger/30 bg-brand-danger-soft p-8 text-center">
+        <p class="mb-4 text-sm font-bold text-brand-danger">{{ errorMessage() }}</p>
+        <button type="button" (click)="retrySearch()"
+            class="cursor-pointer rounded-2xl bg-brand-danger px-5 py-2.5 text-xs font-extrabold text-white transition-opacity hover:opacity-90 focus:outline-none">
+            Try Again
+        </button>
+    </div>
+    } @else {
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        @for (product of filteredProducts(); track product._id) {
+        @let pid = product._id || product.id;
+
+        <article
+            class="animate-cartify-in group flex flex-col justify-between rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/50 hover:shadow-lg">
+            <div>
+                <div class="relative aspect-square overflow-hidden rounded-2xl bg-surface-muted">
+                    <a [routerLink]="['/product-details', pid]" class="block h-full w-full">
+                        <img [src]="product.imageCover" [alt]="product.title" loading="lazy"
+                            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    </a>
+
+                    <span
+                        class="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold shadow-2xs"
+                        [class]="
+                            (product.quantity ?? 0) > 0
+                                ? 'bg-emerald-600/95 text-white'
+                                : 'bg-brand-danger/95 text-white'
+                        ">
+                        {{ (product.quantity ?? 0) > 0 ? 'In Stock' : 'Out of Stock' }}
+                    </span>
+
+                    <div class="absolute top-2.5 right-2.5 flex flex-col gap-2">
+                        <button type="button" (click)="onToggleWishlist(product)" [disabled]="wishlistBusyId() === pid"
+                            [title]="isWishlisted(pid) ? 'Remove from Wishlist' : 'Add to Wishlist'"
+                            [attr.aria-label]="isWishlisted(pid) ? 'Remove from Wishlist' : 'Add to Wishlist'"
+                            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-line-subtle bg-surface-card/95 shadow-2xs backdrop-blur-2xs transition-all hover:scale-105 hover:border-brand-danger active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                            [class.text-brand-danger]="isWishlisted(pid)"
+                            [class.border-brand-danger/40]="isWishlisted(pid)"
+                            [class.bg-brand-danger-soft]="isWishlisted(pid)"
+                            [class.text-content-main]="!isWishlisted(pid)">
+                            @if (wishlistBusyId() === pid) {
+                            <i class="fas fa-spinner fa-spin text-xs"></i>
+                            } @else if (isWishlisted(pid)) {
+                            <i class="fas fa-heart text-xs"></i>
+                            } @else {
+                            <i class="far fa-heart text-xs"></i>
+                            }
+                        </button>
+
+                        <a [routerLink]="['/product-details', pid]" title="View Details" aria-label="View Details"
+                            class="flex h-8 w-8 items-center justify-center rounded-full border border-line-subtle bg-surface-card/95 text-content-main shadow-2xs backdrop-blur-2xs transition-all hover:scale-105 hover:border-brand-secondary hover:bg-brand-secondary-soft hover:text-brand-secondary active:scale-95">
+                            <i class="far fa-eye text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex items-center justify-between gap-2 text-[11px] font-bold">
+                    <span class="truncate text-brand-secondary">
+                        {{ product.category?.name || 'Cartify' }}
+                    </span>
+                    @if (product.brand?.name) {
+                    <span class="shrink-0 truncate text-content-soft">
+                        {{ product.brand?.name }}
+                    </span>
+                    }
+                </div>
+
+                <a [routerLink]="['/product-details', pid]" class="mt-1 block">
+                    <h2
+                        class="line-clamp-1 text-sm font-extrabold text-content-main transition-colors group-hover:text-brand-primary">
+                        {{ product.title }}
+                    </h2>
+                </a>
+            </div>
+
+            <div class="mt-3 flex items-center justify-between border-t border-line-subtle pt-2.5 text-xs">
+                @if (product.priceAfterDiscount) {
+                <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-brand-primary">
+                        {{ product.priceAfterDiscount }} EGP
+                    </span>
+                    <span class="text-[11px] text-content-soft line-through">
+                        {{ product.price }} EGP
+                    </span>
+                </div>
+                } @else {
+                <span class="font-extrabold text-content-main">{{ product.price }} EGP</span>
+                }
+
+                <span class="inline-flex items-center gap-1 font-bold text-content-muted">
+                    <i class="fas fa-star text-[10px] text-brand-accent"></i>
+                    <span>{{ product.ratingsAverage }}</span>
+                </span>
+            </div>
+        </article>
+        } @empty {
+        <div
+            class="col-span-full flex flex-col items-center rounded-4xl border border-line-subtle bg-surface-card px-6 py-12 text-center shadow-2xs">
+            <div
+                class="flex h-14 w-14 items-center justify-center rounded-3xl bg-brand-secondary-soft text-xl text-brand-secondary">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2 class="mt-4 text-base font-extrabold text-content-main sm:text-lg">
+                No matching products found
+            </h2>
+            <p class="mt-1.5 max-w-md text-xs leading-relaxed text-content-muted">
+                Try another keyword, check your spelling, or browse the full shop catalog.
+            </p>
+            <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
+                @if (searchQuery().trim()) {
+                <button type="button" (click)="clearSearch()"
+                    class="cursor-pointer rounded-2xl border border-line-subtle bg-surface-muted px-4 py-2.5 text-xs font-extrabold text-content-main transition-colors hover:border-brand-primary hover:text-brand-primary focus:outline-none">
+                    Reset Search
+                </button>
+                }
+                <a routerLink="/shop" style="background: var(--grad-primary);"
+                    class="inline-flex cursor-pointer items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-extrabold text-brand-on-primary shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none">
+                    <span>Browse All Products</span>
+                    <i class="fas fa-arrow-right text-[11px]"></i>
+                </a>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</section>

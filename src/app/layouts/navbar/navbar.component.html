@@ -91,7 +91,9 @@
         <div class="hidden max-w-md grow md:block">
             <div
                 class="group relative flex items-center rounded-full transition-transform duration-200 focus-within:-translate-y-0.5">
-                <input #desktopSearchInput type="text" placeholder="Search for products, brands and more..."
+                <input #desktopSearchInput type="text" [value]="searchState.query()"
+                    placeholder="Search for products, brands and more..."
+                    (focus)="onSearchFocus(desktopSearchInput.value)" (input)="onSearchTyping(desktopSearchInput.value)"
                     (keydown.enter)="onSearch(desktopSearchInput.value)"
                     class="w-full rounded-full border border-line-subtle bg-surface-muted py-2.5 pl-5 pr-12 text-sm font-medium text-content-main placeholder:text-content-soft shadow-none outline-none ring-0 transition-colors duration-200 hover:border-brand-primary focus:border-brand-primary focus:bg-surface-card focus:outline-none focus:ring-0" />
                 <button type="button" aria-label="Search" (click)="onSearch(desktopSearchInput.value)"
@@ -223,7 +225,9 @@
             <!-- Search Products inside Drawer -->
             <div
                 class="relative mb-6 flex items-center transition-transform duration-200 focus-within:-translate-y-0.5">
-                <input #drawerSearchInput type="text" placeholder="Search products..."
+                <input #drawerSearchInput type="text" [value]="searchState.query()" placeholder="Search products..."
+                    (focus)="onDrawerSearchFocus(drawerSearchInput.value)"
+                    (input)="onDrawerSearchTyping(drawerSearchInput.value)"
                     (keydown.enter)="onDrawerSearch(drawerSearchInput.value)"
                     class="w-full rounded-2xl border border-line-subtle bg-surface-muted py-2.5 pl-4 pr-11 text-sm font-medium text-content-main placeholder:text-content-soft shadow-none outline-none ring-0 transition-colors duration-200 hover:border-brand-primary focus:border-brand-primary focus:bg-surface-card focus:outline-none focus:ring-0" />
                 <button type="button" aria-label="Search" (click)="onDrawerSearch(drawerSearchInput.value)"
@@ -238,12 +242,15 @@
                 <ul class="space-y-1.5 text-sm font-bold text-content-main">
                     <li>
                         <a (click)="closeDrawer()" routerLink="/"
+                            routerLinkActive="bg-brand-primary-soft text-brand-primary"
+                            [routerLinkActiveOptions]="{ exact: true }"
                             class="flex cursor-pointer items-center rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
                             <span>Home</span>
                         </a>
                     </li>
                     <li>
                         <a (click)="closeDrawer()" routerLink="/shop"
+                            routerLinkActive="bg-brand-primary-soft text-brand-primary"
                             class="flex cursor-pointer items-center rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
                             <span>Shop</span>
                         </a>
@@ -257,6 +264,7 @@
                     </li>
                     <li>
                         <a (click)="closeDrawer()" routerLink="/brands"
+                            routerLinkActive="bg-brand-primary-soft text-brand-primary"
                             class="flex cursor-pointer items-center rounded-xl px-3.5 py-2.5 transition-colors duration-200 hover:bg-surface-muted hover:text-brand-primary">
                             <span>Brands</span>
                         </a>
