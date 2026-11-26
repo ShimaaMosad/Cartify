@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
 import { routes } from './app.routes';
@@ -17,7 +17,12 @@ import { errorInterceptor } from './core/interceptors/errors-interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top',
+      }),
+    ),
     provideClientHydration(),
     provideAnimations(),
     importProvidersFrom(NgxSpinnerModule.forRoot({ type: 'ball-clip-rotate' })),
