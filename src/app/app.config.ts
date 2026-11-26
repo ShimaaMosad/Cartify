@@ -17,7 +17,9 @@ import { errorInterceptor } from './core/interceptors/errors-interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(routes, withInMemoryScrolling({
+    scrollPositionRestoration: 'top'
+  }) ),
     provideClientHydration(),
     provideAnimations(),
     importProvidersFrom(NgxSpinnerModule.forRoot({ type: 'ball-clip-rotate' })),
