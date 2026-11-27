@@ -16,6 +16,9 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { RouterLink } from '@angular/router';
 import { ProductsService } from '../../../../core/services/products/products.service';
 import { CatagoriesService } from '../../../../core/services/catagories/catagories.service';
+import { WishlistService } from '../../../../core/services/wishlist/wishlist.service';
+import { ToastService } from '../../../../core/services/toast/toast.service';
+import { Product } from '../../../../core/models/products-data.interface';
 
 export interface HeroSlide {
   id: string;
@@ -37,6 +40,8 @@ export interface HeroSlide {
 export class HeroSlideComponent implements OnInit, OnDestroy {
   private readonly productsService = inject(ProductsService);
   private readonly catagoriesService = inject(CatagoriesService);
+  readonly wishlistService = inject(WishlistService);
+  private readonly toastr = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -47,6 +52,9 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
   private touchStartX: number | null = null;
 
   readonly slides = signal<HeroSlide[]>([]);
+  readonly featuredProducts = signal<Product[]>([]);
+  readonly isLoadingProducts = signal<boolean>(true);
+  readonly wishlistBusyId = signal<string | null>(null);
   readonly activeIndex = signal<number>(0);
   readonly isPaused = signal<boolean>(false);
   readonly realProductsCount = signal<number | null>(null);
@@ -65,6 +73,51 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.stopAutoPlay();
+  }
+
+  isWishlisted(productId: string): boolean {
+    return this.wishlistService.isInWishlist(productId);
+  }
+
+  onToggleWishlist(product: Product): void {
+    const id = product._id || product.id;
+    if (!id || this.wishlistBusyId()) return;
+
+    this.wishlistBusyId.set(id);
+
+    if (this.isWishlisted(id)) {
+      this.wishlistService
+        .removeProductFromWishlist(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            this.wishlistBusyId.set(null);
+            this.toastr.success(
+              res.message || `"${product.title}" removed from wishlist.`,
+              'Removed',
+            );
+          },
+          error: () => {
+            this.wishlistBusyId.set(null);
+          },
+        });
+    } else {
+      this.wishlistService
+        .addProductToWishlist(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            this.wishlistBusyId.set(null);
+            this.toastr.success(
+              res.message || `"${product.title}" added to wishlist.`,
+              'Added to Wishlist',
+            );
+          },
+          error: () => {
+            this.wishlistBusyId.set(null);
+          },
+        });
+    }
   }
 
   nextSlide(): void {
@@ -137,6 +190,8 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
   }
 
   private loadRealStoreData(): void {
+    this.isLoadingProducts.set(true);
+
     forkJoin({
       categoriesRes: this.catagoriesService.getAllCategories().pipe(catchError(() => of(null))),
       productsRes: this.productsService
@@ -147,6 +202,9 @@ export class HeroSlideComponent implements OnInit, OnDestroy {
         switchMap(({ categoriesRes, productsRes }) => {
           const categories = Array.isArray(categoriesRes?.data) ? categoriesRes.data : [];
           const allProducts = Array.isArray(productsRes?.data) ? productsRes.data : [];
+
+          this.featuredProducts.set(allProducts.slice(0, 8));
+          this.isLoadingProducts.set(false);
 
           if (categories.length > 0) {
             this.realCategoriesCount.set(categories.length);

@@ -221,4 +221,147 @@
             </div>
         </div>
     </div>
+
+    <!-- Featured Products Section -->
+    <section class="mx-auto max-w-7xl px-4 pb-14 md:px-6">
+        <div class="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+            <div>
+                <span
+                    class="mb-1.5 inline-flex items-center gap-1.5 rounded-full border border-brand-accent/30 bg-brand-accent-soft px-3.5 py-1 text-xs font-bold text-brand-accent">
+                    <i class="fa-solid fa-fire text-[11px]"></i>
+                    <span>Trending Now</span>
+                </span>
+                <h2 class="text-2xl font-extrabold tracking-tight text-content-main md:text-3xl">
+                    Featured Products
+                </h2>
+                <p class="mt-1 text-xs font-medium text-content-muted sm:text-sm">
+                    Handpicked items from across the Cartify catalog.
+                </p>
+            </div>
+
+            <a routerLink="/shop"
+                class="group inline-flex w-fit items-center gap-2 rounded-2xl border border-line-subtle bg-surface-card px-4 py-2.5 text-xs font-extrabold text-content-main shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:text-brand-primary sm:text-sm">
+                <span>View All Products</span>
+                <i
+                    class="fa-solid fa-arrow-right text-xs transition-transform duration-200 group-hover:translate-x-1"></i>
+            </a>
+        </div>
+
+        @if (isLoadingProducts()) {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
+            <div class="animate-pulse rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-xs">
+                <div class="aspect-square w-full rounded-2xl bg-surface-muted"></div>
+                <div class="mt-3 h-4 w-24 rounded-full bg-surface-muted"></div>
+                <div class="mt-2 h-5 w-3/4 rounded-lg bg-surface-muted"></div>
+                <div class="mt-3 h-4 w-1/2 rounded-lg bg-surface-muted"></div>
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            @for (product of featuredProducts(); track product._id) {
+            @let pid = product._id || product.id;
+
+            <article
+                class="animate-cartify-in group flex flex-col justify-between rounded-3xl border border-line-subtle bg-surface-card p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary/50 hover:shadow-lg">
+                <div>
+                    <div class="relative aspect-square overflow-hidden rounded-2xl bg-surface-muted">
+                        <a [routerLink]="['/product-details', pid]" class="block h-full w-full">
+                            <img [src]="product.imageCover" [alt]="product.title" loading="lazy"
+                                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        </a>
+
+                        <span
+                            class="absolute top-2.5 left-2.5 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold shadow-xs"
+                            [class]="
+                                (product.quantity ?? 0) > 0
+                                    ? 'bg-emerald-600/95 text-white'
+                                    : 'bg-brand-danger/95 text-white'
+                            ">
+                            {{ (product.quantity ?? 0) > 0 ? 'In Stock' : 'Out of Stock' }}
+                        </span>
+
+                        <div class="absolute top-2.5 right-2.5 flex flex-col gap-2 opacity-95 transition-opacity">
+                            <button type="button" (click)="onToggleWishlist(product)"
+                                [disabled]="wishlistBusyId() === pid"
+                                [title]="isWishlisted(pid) ? 'Remove from Wishlist' : 'Add to Wishlist'"
+                                [attr.aria-label]="isWishlisted(pid) ? 'Remove from Wishlist' : 'Add to Wishlist'"
+                                class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-line-subtle bg-surface-card/95 shadow-xs backdrop-blur-xs transition-all hover:scale-105 hover:border-brand-danger active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                                [class.text-brand-danger]="isWishlisted(pid)"
+                                [class.border-brand-danger/40]="isWishlisted(pid)"
+                                [class.bg-brand-danger-soft]="isWishlisted(pid)"
+                                [class.text-content-main]="!isWishlisted(pid)">
+                                @if (wishlistBusyId() === pid) {
+                                <i class="fas fa-spinner fa-spin text-xs"></i>
+                                } @else if (isWishlisted(pid)) {
+                                <i class="fas fa-heart text-xs"></i>
+                                } @else {
+                                <i class="far fa-heart text-xs"></i>
+                                }
+                            </button>
+
+                            <a [routerLink]="['/product-details', pid]" title="View Details" aria-label="View Details"
+                                class="flex h-8 w-8 items-center justify-center rounded-full border border-line-subtle bg-surface-card/95 text-content-main shadow-xs backdrop-blur-xs transition-all hover:scale-105 hover:border-brand-secondary hover:bg-brand-secondary-soft hover:text-brand-secondary active:scale-95">
+                                <i class="far fa-eye text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 flex items-center justify-between gap-2">
+                        <span class="truncate text-[11px] font-bold text-brand-secondary">
+                            {{ product.category.name }}
+                        </span>
+
+                        @if ((product.quantity ?? 0) > 0) {
+                        <span class="shrink-0 text-[11px] font-semibold text-content-muted">
+                            {{ product.quantity }} left
+                        </span>
+                        } @else {
+                        <span class="shrink-0 text-[11px] font-bold text-brand-danger">0 left</span>
+                        }
+                    </div>
+
+                    <a [routerLink]="['/product-details', pid]" class="mt-1 block">
+                        <h3
+                            class="line-clamp-1 text-sm font-extrabold text-content-main transition-colors group-hover:text-brand-primary">
+                            {{ product.title }}
+                        </h3>
+                    </a>
+                </div>
+
+                <div class="mt-3 flex items-center justify-between border-t border-line-subtle pt-2.5 text-xs">
+                    @if (product.priceAfterDiscount) {
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-brand-primary">
+                            {{ product.priceAfterDiscount }} EGP
+                        </span>
+                        <span class="text-[11px] text-content-soft line-through">
+                            {{ product.price }} EGP
+                        </span>
+                    </div>
+                    } @else {
+                    <span class="font-extrabold text-content-main">{{ product.price }} EGP</span>
+                    }
+
+                    <span class="inline-flex items-center gap-1 font-bold text-content-muted">
+                        <i class="fas fa-star text-[10px] text-brand-accent"></i>
+                        <span>{{ product.ratingsAverage }}</span>
+                    </span>
+                </div>
+            </article>
+            } @empty {
+            <div class="col-span-full rounded-3xl border border-line-subtle bg-surface-card p-8 text-center">
+                <p class="mb-3 text-sm font-semibold text-content-muted">
+                    No featured products available right now.
+                </p>
+                <a routerLink="/shop" style="background: var(--grad-primary);"
+                    class="inline-flex cursor-pointer items-center gap-2 rounded-2xl px-4 py-2 text-xs font-extrabold text-brand-on-primary shadow-2xs transition-all hover:-translate-y-0.5 hover:shadow-md">
+                    <span>Explore Shop</span>
+                </a>
+            </div>
+            }
+        </div>
+        }
+    </section>
 </div>
