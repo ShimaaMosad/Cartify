@@ -12,7 +12,16 @@
 
         @if (!isLoading() && !errorMessage()) {
         <p class="text-sm font-semibold text-content-muted">
-            Showing <span class="font-extrabold text-content-main">{{ products().length }}</span> items
+            Showing <span class="font-extrabold text-content-main">{{ products().length }}</span>
+            @if (totalResults() > products().length) {
+            of <span class="font-extrabold text-content-main">{{ totalResults() }}</span>
+            }
+            items
+            @if (numberOfPages() > 1) {
+            <span class="text-xs text-content-soft">
+                (Page {{ currentPage() }} of {{ numberOfPages() }})
+            </span>
+            }
         </p>
         }
     </div>
@@ -65,7 +74,8 @@
     } @else if (errorMessage()) {
     <div class="rounded-3xl border border-brand-danger/30 bg-brand-danger-soft p-8 text-center">
         <p class="mb-4 text-sm font-bold text-brand-danger">{{ errorMessage() }}</p>
-        <button type="button" (click)="loadProducts(activeSubCategoryId(), activeCategoryId(), activeBrandId())"
+        <button type="button"
+            (click)="loadProducts(activeSubCategoryId(), activeCategoryId(), activeBrandId(), currentPage())"
             class="cursor-pointer rounded-2xl bg-brand-danger px-5 py-2.5 text-sm font-extrabold text-white transition-opacity hover:opacity-90 focus:outline-none">
             Try Again
         </button>
@@ -173,5 +183,33 @@
         </div>
         }
     </div>
+
+    <!-- Pagination Controls -->
+    @if (numberOfPages() > 1 && products().length > 0) {
+    <nav aria-label="Products pagination" class="mt-10 flex flex-wrap items-center justify-center gap-2">
+        <button type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() <= 1"
+            class="inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-2xl border border-line-subtle bg-surface-card px-4 text-xs font-extrabold text-content-main shadow-2xs transition-all hover:-translate-y-0.5 hover:border-brand-primary hover:text-brand-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0">
+            <i class="fas fa-chevron-left text-[10px]"></i>
+            <span>Previous</span>
+        </button>
+
+        @for (page of pageNumbers(); track page) {
+        <button type="button" (click)="goToPage(page)" [attr.aria-current]="page === currentPage() ? 'page' : null"
+            [style]="page === currentPage() ? 'background: var(--grad-primary);' : null" [class]="
+                page === currentPage()
+                    ? 'h-10 min-w-10 cursor-pointer rounded-2xl px-3.5 text-xs font-extrabold text-brand-on-primary shadow-sm transition-transform hover:scale-105 focus:outline-none'
+                    : 'h-10 min-w-10 cursor-pointer rounded-2xl border border-line-subtle bg-surface-card px-3.5 text-xs font-bold text-content-main shadow-2xs transition-all hover:-translate-y-0.5 hover:border-brand-secondary hover:bg-brand-secondary-soft hover:text-brand-secondary focus:outline-none'
+            ">
+            {{ page }}
+        </button>
+        }
+
+        <button type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= numberOfPages()"
+            class="inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-2xl border border-line-subtle bg-surface-card px-4 text-xs font-extrabold text-content-main shadow-2xs transition-all hover:-translate-y-0.5 hover:border-brand-primary hover:text-brand-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0">
+            <span>Next</span>
+            <i class="fas fa-chevron-right text-[10px]"></i>
+        </button>
+    </nav>
+    }
     }
 </section>
